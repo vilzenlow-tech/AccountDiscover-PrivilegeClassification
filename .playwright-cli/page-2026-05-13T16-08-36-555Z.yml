@@ -1,0 +1,13 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]: ADPCT
+    - generic [ref=e7]: Account Discovery & Privilege Classification
+  - generic [ref=e8]:
+    - generic [ref=e9]:
+      - generic [ref=e10]: Email
+      - textbox "admin@local" [active] [ref=e11]
+    - generic [ref=e12]:
+      - generic [ref=e13]: Password
+      - textbox "••••••••" [ref=e14]
+    - button "Sign in" [ref=e15] [cursor=pointer]
+  - paragraph [ref=e16]: Internal use only — not for external access.

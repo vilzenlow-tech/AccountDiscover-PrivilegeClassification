@@ -1,0 +1,60 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+.venv/
+venv/
+env/
+
+# Environment files (may contain secrets)
+.env
+.env.*
+!.env.example
+
+# Docker secrets — NEVER commit
+secrets/
+
+# TLS certificates — NEVER commit private keys
+nginx/certs/
+
+# Alembic
+backend/alembic/versions/__pycache__/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Generated/runtime artifacts
+*.tar
+*.db
+*.sqlite
+*.sqlite3
+backend/celerybeat-schedule
+backend/vault_data/
+.pytest_cache/
+backend/.pytest_cache/
+
+# Local assistant/runtime state
+.claude/
+.claude-flow/
+.claude/settings.local.json
+.mcp.json
+
+# Local reports/sample exports that may contain environment details
+*.docx
+*.csv
+
+# Misc
+.DS_Store
+*.log
+*.swp
+*.swo
+.idea/
+.vscode/

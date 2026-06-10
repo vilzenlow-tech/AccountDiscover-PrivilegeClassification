@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+  <head>
+    <title>IEEE SA Cybersecurity Hackathon 2026</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon"
+          href="/files/7f527053d8ce5283e1c88c16a21f2531/TabIcon.png"
+          type="image/x-icon">
+    
+    
+      <link rel="stylesheet" href="https://cdn.cloud.ctfd.io/ieeesahackathon/themes/hacker-theme/static/assets/main.0b441413.css">
+    
+    
+    
+    <script type="text/javascript">
+      window.init = {
+          'urlRoot': "",
+          'csrfNonce': "2893c7f4940010dc0b32640d2d541b81d709e118758a3564f7c2c2ddb428b405",
+          'userMode': "teams",
+          'userId': 8,
+          'userName': "Vilzen Low",
+          'userEmail': "vilzenlow@gmail.com",
+          'userVerified': true,
+          'teamId': 2,
+          'teamName': "ByteForce",
+          'start': 1780027200,
+          'end': 1780200000,
+          'themeSettings': null,
+          'eventSounds': [
+            '/themes/core/static/sounds/notification.webm',
+            '/themes/core/static/sounds/notification.mp3',
+          ],
+      }
+    </script>
+    <style id="theme-color">
+:root {--theme-color: #007bff;}
+.navbar{background-color: var(--theme-color) !important;}
+.jumbotron{background-color: var(--theme-color) !important;}
+</style>
+
+  </head>
+  <body>
+    <div class="container pt-5">
+  <div class="row">
+    <div class="d-flex w-100 mb-4 justify-content-between justify-content-md-center px-3">
+      <a href="/"
+         class="navbar-brand">
+        
+          <span class="h3">IEEE SA Cybersecurity Hackathon 2026</span>
+        
+      </a>
+      <button class="navbar-toggler ms-auto d-block d-md-none"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#base-navbars"
+              aria-controls="base-navbars"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+    </div>
+  </div>
+</div>
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+  <div class="container px-3">
+    <div class="collapse navbar-collapse" id="base-navbars">
+      <ul class="navbar-nav me-auto">
+        
+          <li class="nav-item">
+            <a class="nav-link" href="/users">
+              <span class="nav-text">Users</span>
+            </a>
+          </li>
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/teams">
+                <span class="nav-text">Teams</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item">
+            <a class="nav-link" href="/scoreboard">
+              <span class="nav-text">Scoreboard</span>
+            </a>
+          </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" href="/challenges">
+            <span class="nav-text">Challenges</span>
+          </a>
+        </li>
+        
+          <li class="nav-item">
+            <a class="nav-link" href="/important" >
+              <span class="nav-text">Important</span>
+            </a>
+          </li>
+        
+      </ul>
+      <hr class="d-sm-flex d-md-flex d-lg-none">
+      <ul class="navbar-nav ms-md-auto d-block d-sm-flex d-md-flex">
+        
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/notifications">
+              <span class="d-block"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Notifications">
+                <i class="fas fa-bell d-none d-md-block d-xl-none"></i>
+              </span>
+              <span class="d-sm-block d-md-none d-xl-block">
+                <i class="fas fa-bell pe-1"></i>
+                <span x-data
+                      x-show="$store.unread_count > 0"
+                      x-text="$store.unread_count"
+                      class="badge rounded-pill bg-danger badge-notification"></span>
+                <span class="nav-text">Notifications</span>
+              </span>
+            </a>
+          </li>
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/team">
+                <span class="d-block"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="bottom"
+                      title="Team">
+                  <i class="fas fa-users d-none d-md-block d-xl-none"></i>
+                </span>
+                <span class="d-sm-block d-md-none d-xl-block">
+                  <i class="fas fa-users pe-1"></i>
+                  <span class="nav-text">Team</span>
+                </span>
+              </a>
+            </li>
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/user">
+              <span class="d-block"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Profile">
+                <i class="fas fa-user-circle d-none d-md-block d-xl-none"></i>
+              </span>
+              <span class="d-sm-block d-md-none d-xl-block">
+                <i class="fas fa-user-circle pe-1"></i>
+                <span class="nav-text">Profile</span>
+              </span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/settings">
+              <span class="d-block"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Settings">
+                <i class="fas fa-cogs d-none d-md-block d-xl-none"></i>
+              </span>
+              <span class="d-sm-block d-md-none d-xl-block">
+                <i class="fas fa-cogs pe-1"></i>
+                <span class="nav-text">Settings</span>
+              </span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">
+              <span class="d-block"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="bottom"
+                    title="Logout">
+                <i class="fas fa-sign-out-alt d-none d-md-block d-xl-none"></i>
+              </span>
+              <span class="d-sm-block d-md-none d-xl-block">
+                <i class="fas fa-sign-out-alt pe-1"></i>
+                <span class="nav-text d-lg-none">Logout</span>
+              </span>
+            </a>
+          </li>
+        
+        <li class="nav-item dropdown">
+          <button class="nav-link dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-language d-none d-md-inline"></i>
+            <span class="d-sm-inline d-md-none">
+              <i class="fas fa-language pe-1"></i>
+              Change language
+            </span>
+          </button>
+          <form x-data="LanguageForm">
+            <ul class="dropdown-menu dropdown-menu-end">
+              
+              <li>
+                  <span class="dropdown-item bg-primary text-white" @click="set" value="en">
+                    English
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="de">
+                    Deutsch
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="pl">
+                    Polski
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="es">
+                    Español
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="ar">
+                    اَلْعَرَبِيَّةُ
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="zh_CN">
+                    简体中文
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="zh_TW">
+                    繁體中文
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="fr">
+                    Français
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="ko">
+                    한국어
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="ru">
+                    русский язык
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="pt_BR">
+                    Português do Brasil
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="sk">
+                    Slovenský jazyk
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="ja">
+                    日本語
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="it">
+                    Italiano
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="vi">
+                    tiếng Việt
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="ca">
+                    Català
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="el">
+                    Ελληνικά
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="fi">
+                    Suomi
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="ro">
+                    Română
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="sl">
+                    Slovenščina
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="sv">
+                    Svenska
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="he">
+                    עברית
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="uz">
+                    oʻzbekcha
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="sr">
+                    Српски језик
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="no">
+                    Norsk
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="hr">
+                    Hrvatski
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="cs">
+                    Čeština
+                  </span>
+              </li>
+              <li>
+                  <span class="dropdown-item " @click="set" value="id">
+                    Bahasa Indonesia
+                  </span>
+              </li>
+            </ul>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+    <main role="main">
+      
+  <div class="container">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+.center-container{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+}
+
+.center-text{
+    font-family:'Orbitron',sans-serif;
+    font-size:clamp(2rem,6vw,5rem);
+    font-weight:700;
+    color:#00ff88;
+    text-shadow:
+        0 0 10px #00ff88,
+        0 0 20px #00ff88,
+        0 0 40px #00ff88;
+    letter-spacing:6px;
+}
+
+.line{
+    width:60%;
+    height:2px;
+    margin:25px 0;
+    background:#00ff88;
+    box-shadow:
+        0 0 10px #00ff88,
+        0 0 20px #00ff88;
+}
+
+.timer{
+    font-family:'Orbitron',sans-serif;
+    font-size:clamp(1.5rem,5vw,4rem);
+    font-weight:700;
+    color:#00ff88;
+    letter-spacing:6px;
+    text-shadow:
+        0 0 10px #00ff88,
+        0 0 20px #00ff88,
+        0 0 40px #00ff88;
+}
+
+.labels{
+    font-family:'Orbitron',sans-serif;
+    margin-top:12px;
+    color:#00aa66;
+    font-size:0.9rem;
+    letter-spacing:5px;
+}
+
+.blink{
+    animation:blink 1s infinite;
+}
+
+@keyframes blink{
+    50%{
+        opacity:0.4;
+    }
+}
+</style>
+
+<div class="center-container">
+    
+    <div class="center-text blink">
+        LAST TWO MINUTES
+    </div>
+
+    <div class="line"></div>
+
+    <div id="countdown" class="timer">
+        00:00:00:00
+    </div>
+
+    <div class="labels">
+        DD : HH : MM : SS
+    </div>
+
+</div>
+
+<script>
+function updateCountdown() {
+
+    // 31 May 2026 — 9:30 AM IST
+    const target = new Date("2026-05-31T09:30:00+05:30").getTime();
+
+    const now = new Date().getTime();
+    const diff = target - now;
+
+    if (diff <= 0) {
+        document.getElementById("countdown").innerHTML = "00:00:00:00";
+        return;
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    const hours = Math.floor(
+        (diff % (1000 * 60 * 60 * 24)) /
+        (1000 * 60 * 60)
+    );
+
+    const minutes = Math.floor(
+        (diff % (1000 * 60 * 60)) /
+        (1000 * 60)
+    );
+
+    const seconds = Math.floor(
+        (diff % (1000 * 60)) /
+        1000
+    );
+
+    document.getElementById("countdown").innerHTML =
+        String(days).padStart(2, "0") + ":" +
+        String(hours).padStart(2, "0") + ":" +
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0");
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+</script>
+  </div>
+
+    </main>
+    
+<div 
+    id="ctfdio-snackbar-email-nudge"
+    x-data 
+    x-show="window.init.userId && !window.init.userVerified && localStorage.getItem('remind_email_verify') != window.init.userId && (!['/team', '/teams/join', '/teams/new'].includes(window.location.pathname) || window.init.teamId != null)"
+    class="alert alert-info alert-dismissible col-md-4 col-10 position-fixed text-center m-0 ctfdio-email-nudge" 
+    style="bottom: 45px; left: 50%; transform: translateX(-50%); z-index: 1040; display: none;" 
+    role="alert"
+>
+  <small>
+    <strong>Email Unconfirmed</strong><br>
+    <span>To confirm your email address please <a href="/confirm?flow=init">click here</a>.</span>
+  </small>
+  <button type="button" class="btn-close" @click="localStorage.setItem('remind_email_verify', window.init.userId); $el.parentElement.style.display = 'none';" aria-label="Close"></button>
+</div>
+
+    <footer class="footer">
+      <div class="container text-center">
+        <a href="https://ctfd.io" class="text-secondary">
+          <small class="text-muted">Powered by CTFd</small>
+        </a>
+      </div>
+    </footer>
+    <div x-data>
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div x-ref="toast"
+         class="toast hide"
+         role="alert"
+         aria-live="assertive"
+         aria-atomic="true">
+      <div class="toast-header">
+        <span class="fw-bolder me-auto">
+          <span class="text-muted">[</span><span class="text-info">!</span><span class="text-muted">]</span>
+          <span x-text="$store.toast.title"></span>
+        </span>
+        <small>just now</small>
+        <button type="button"
+                class="btn-close btn-close-white"
+                data-bs-dismiss="toast"
+                aria-label="Close">
+        </button>
+      </div>
+      <div class="toast-body" x-html="$store.toast.html">
+      </div>
+    </div>
+  </div>
+</div>
+<div x-data>
+  <div class="modal" x-ref="modal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" x-text="$store.modal.title">
+          </h5>
+          <button type="button"
+                  class="btn-close btn-close-white"
+                  data-bs-dismiss="modal"
+                  aria-label="Close">
+          </button>
+        </div>
+        <div class="modal-body">
+          <p x-html="$store.modal.html">
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+                  class="d-block btn btn-primary w-100"
+                  data-bs-dismiss="modal">
+            Got it!
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+  <script type="module"  src="https://cdn.cloud.ctfd.io/ieeesahackathon/themes/hacker-theme/static/assets/index.b6be5691.js"></script><script type="module"  src="https://cdn.cloud.ctfd.io/ieeesahackathon/themes/hacker-theme/static/assets/page.1b85bc2f.js"></script>
+
+    <script defer src="https://cdn.cloud.ctfd.io/ieeesahackathon/static/recaptcha.js?t=62fde671"></script>
+<script defer src="https://www.google.com/recaptcha/api.js"></script>
+    
+  </body>
+</html>

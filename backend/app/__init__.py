@@ -1,0 +1,1 @@
+"""ADPCT backend application package."""

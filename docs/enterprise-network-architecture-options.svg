@@ -1,0 +1,265 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2200" height="1450" viewBox="0 0 2200 1450" role="img" aria-labelledby="title desc">
+  <title id="title">Three enterprise production network architecture suggestions for Account Discovery Tool</title>
+  <desc id="desc">Three different enterprise deployment architecture options: single data center, high availability DMZ, and multi-site zero-trust connector deployment.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .title { font: 700 42px Arial, sans-serif; fill: #101828; }
+      .subtitle { font: 400 21px Arial, sans-serif; fill: #667085; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 22; filter: url(#shadow); }
+      .panel-title { font: 700 27px Arial, sans-serif; fill: #172033; }
+      .panel-sub { font: 400 16px Arial, sans-serif; fill: #667085; }
+      .zone { fill: #f8fafc; stroke: #d9e2ec; stroke-width: 2; rx: 16; }
+      .zone-title { font: 700 16px Arial, sans-serif; fill: #475569; letter-spacing: .2px; }
+      .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 14; }
+      .blue { fill: #eef6ff; stroke: #83bfff; }
+      .green { fill: #eefbf4; stroke: #74d99f; }
+      .orange { fill: #fff7ed; stroke: #fdba74; }
+      .red { fill: #fff1f2; stroke: #fda4af; }
+      .purple { fill: #f5f3ff; stroke: #b7a8ff; }
+      .dark { fill: #eef2f7; stroke: #94a3b8; }
+      .label { font: 700 16px Arial, sans-serif; fill: #172033; }
+      .small { font: 400 13px Arial, sans-serif; fill: #52637a; }
+      .tiny { font: 400 12px Arial, sans-serif; fill: #667085; }
+      .line { stroke: #456179; stroke-width: 2.7; fill: none; marker-end: url(#arrow); }
+      .secure { stroke: #16803c; stroke-width: 2.9; fill: none; marker-end: url(#arrowGreen); }
+      .dash { stroke: #7c8da1; stroke-width: 2.3; stroke-dasharray: 7 6; fill: none; marker-end: url(#arrowGrey); }
+      .note { fill: #ffffff; stroke: #d9e2ec; stroke-width: 1.5; rx: 18; }
+      .note-text { font: 700 13px Arial, sans-serif; fill: #334155; }
+      .muted { font: 400 12px Arial, sans-serif; fill: #64748b; }
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto">
+      <path d="M1.5,1.5 L9,5.5 L1.5,9.5 Z" fill="#456179"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto">
+      <path d="M1.5,1.5 L9,5.5 L1.5,9.5 Z" fill="#16803c"/>
+    </marker>
+    <marker id="arrowGrey" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto">
+      <path d="M1.5,1.5 L9,5.5 L1.5,9.5 Z" fill="#7c8da1"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="2200" height="1450"/>
+  <text x="70" y="75" class="title">Account Discovery Tool - 3 Enterprise Production Network Architecture Suggestions</text>
+  <text x="70" y="112" class="subtitle">Three deployment patterns depending on scale, security requirements, and number of enterprise network zones.</text>
+
+  <!-- Option 1 -->
+  <rect x="60" y="165" width="2080" height="360" class="panel"/>
+  <text x="95" y="210" class="panel-title">Option 1 - Single Data Center / Private LAN Production</text>
+  <text x="95" y="237" class="panel-sub">Best for a smaller enterprise or pilot moving into production. Simple, private, and easiest to operate.</text>
+
+  <rect x="95" y="270" width="300" height="185" class="zone"/>
+  <text x="120" y="300" class="zone-title">USER NETWORK</text>
+  <rect x="125" y="330" width="220" height="70" class="box blue"/>
+  <text x="150" y="360" class="label">Security Analysts</text>
+  <text x="150" y="383" class="small">Browser + SSO/MFA</text>
+
+  <rect x="455" y="270" width="430" height="185" class="zone"/>
+  <text x="480" y="300" class="zone-title">DMZ / INGRESS</text>
+  <rect x="485" y="330" width="165" height="70" class="box orange"/>
+  <text x="513" y="360" class="label">WAF / LB</text>
+  <text x="505" y="383" class="small">TLS termination</text>
+  <rect x="685" y="330" width="165" height="70" class="box blue"/>
+  <text x="715" y="360" class="label">Frontend</text>
+  <text x="712" y="383" class="small">Nginx static UI</text>
+
+  <rect x="945" y="270" width="520" height="185" class="zone"/>
+  <text x="970" y="300" class="zone-title">PRIVATE APP SUBNET</text>
+  <rect x="985" y="330" width="155" height="70" class="box green"/>
+  <text x="1024" y="360" class="label">API</text>
+  <text x="1007" y="383" class="small">FastAPI x2</text>
+  <rect x="1175" y="330" width="155" height="70" class="box green"/>
+  <text x="1210" y="360" class="label">Worker</text>
+  <text x="1190" y="383" class="small">Celery jobs</text>
+  <rect x="1365" y="330" width="70" height="70" class="box green"/>
+  <text x="1382" y="360" class="label">Beat</text>
+  <text x="1382" y="383" class="small">Cron</text>
+
+  <rect x="1525" y="270" width="250" height="185" class="zone"/>
+  <text x="1550" y="300" class="zone-title">DATA SUBNET</text>
+  <rect x="1555" y="325" width="185" height="55" class="box red"/>
+  <text x="1586" y="357" class="label">PostgreSQL HA</text>
+  <rect x="1555" y="390" width="185" height="45" class="box red"/>
+  <text x="1612" y="418" class="label">Redis</text>
+
+  <rect x="1830" y="270" width="270" height="185" class="zone"/>
+  <text x="1855" y="300" class="zone-title">TARGET SERVER LAN</text>
+  <rect x="1860" y="325" width="210" height="52" class="box purple"/>
+  <text x="1892" y="356" class="label">Connector Agent</text>
+  <rect x="1860" y="390" width="90" height="45" class="box"/>
+  <text x="1880" y="418" class="small">Windows</text>
+  <rect x="1980" y="390" width="90" height="45" class="box"/>
+  <text x="2003" y="418" class="small">Linux</text>
+
+  <path d="M345 365 L485 365" class="line"/>
+  <path d="M650 365 L685 365" class="line"/>
+  <path d="M850 365 L985 365" class="line"/>
+  <path d="M1140 365 L1175 365" class="line"/>
+  <path d="M1330 365 L1365 365" class="dash"/>
+  <path d="M1140 390 L1555 352" class="line"/>
+  <path d="M1253 400 L1555 413" class="line"/>
+  <path d="M1860 351 L1140 351" class="secure"/>
+  <path d="M1965 377 L1965 390" class="line"/>
+
+  <rect x="95" y="470" width="620" height="32" class="note"/>
+  <text x="115" y="491" class="note-text">Use when: one main site, limited zones, straightforward operations, private access only.</text>
+  <rect x="745" y="470" width="650" height="32" class="note"/>
+  <text x="765" y="491" class="note-text">Main control: no direct DB access from users; connector uses outbound HTTPS to API.</text>
+
+  <!-- Option 2 -->
+  <rect x="60" y="565" width="2080" height="390" class="panel"/>
+  <text x="95" y="610" class="panel-title">Option 2 - High Availability Enterprise DMZ + Segmented Private Subnets</text>
+  <text x="95" y="637" class="panel-sub">Best for regulated production. Stronger isolation, active-active application layer, managed database, and centralized monitoring.</text>
+
+  <rect x="95" y="670" width="250" height="210" class="zone"/>
+  <text x="120" y="700" class="zone-title">CORPORATE USERS</text>
+  <rect x="125" y="735" width="175" height="60" class="box blue"/>
+  <text x="155" y="770" class="label">Users</text>
+  <rect x="125" y="810" width="175" height="45" class="box purple"/>
+  <text x="158" y="838" class="small">IdP + MFA</text>
+
+  <rect x="400" y="670" width="310" height="210" class="zone"/>
+  <text x="425" y="700" class="zone-title">PUBLIC / DMZ SUBNET</text>
+  <rect x="430" y="730" width="110" height="60" class="box orange"/>
+  <text x="461" y="765" class="label">WAF</text>
+  <rect x="570" y="730" width="110" height="60" class="box orange"/>
+  <text x="598" y="765" class="label">ALB</text>
+  <rect x="500" y="805" width="110" height="50" class="box blue"/>
+  <text x="526" y="835" class="small">Frontend</text>
+
+  <rect x="765" y="670" width="430" height="210" class="zone"/>
+  <text x="790" y="700" class="zone-title">PRIVATE APP SUBNET A/B</text>
+  <rect x="800" y="730" width="130" height="60" class="box green"/>
+  <text x="848" y="765" class="label">API</text>
+  <rect x="955" y="730" width="130" height="60" class="box green"/>
+  <text x="1003" y="765" class="label">API</text>
+  <rect x="800" y="805" width="130" height="50" class="box green"/>
+  <text x="835" y="835" class="small">Workers</text>
+  <rect x="955" y="805" width="130" height="50" class="box green"/>
+  <text x="995" y="835" class="small">Scheduler</text>
+
+  <rect x="1250" y="670" width="300" height="210" class="zone"/>
+  <text x="1275" y="700" class="zone-title">RESTRICTED DATA SUBNET</text>
+  <rect x="1280" y="730" width="220" height="55" class="box red"/>
+  <text x="1320" y="763" class="label">Managed PostgreSQL</text>
+  <rect x="1280" y="795" width="100" height="50" class="box red"/>
+  <text x="1312" y="825" class="small">Redis</text>
+  <rect x="1400" y="795" width="100" height="50" class="box red"/>
+  <text x="1430" y="825" class="small">Vault</text>
+
+  <rect x="1605" y="670" width="485" height="210" class="zone"/>
+  <text x="1630" y="700" class="zone-title">SERVER ZONE WITH LOCAL AGENT</text>
+  <rect x="1640" y="735" width="160" height="65" class="box purple"/>
+  <text x="1668" y="766" class="label">Agent Pair</text>
+  <text x="1666" y="788" class="tiny">active / standby</text>
+  <rect x="1840" y="720" width="100" height="45" class="box"/>
+  <text x="1862" y="748" class="small">Windows</text>
+  <rect x="1965" y="720" width="100" height="45" class="box"/>
+  <text x="1987" y="748" class="small">Linux</text>
+  <rect x="1840" y="790" width="100" height="45" class="box"/>
+  <text x="1870" y="818" class="small">AD</text>
+  <rect x="1965" y="790" width="100" height="45" class="box"/>
+  <text x="1993" y="818" class="small">DB</text>
+
+  <path d="M300 765 L430 765" class="line"/>
+  <path d="M540 760 L570 760" class="line"/>
+  <path d="M625 760 L800 760" class="line"/>
+  <path d="M930 760 L955 760" class="line"/>
+  <path d="M865 790 L865 805" class="line"/>
+  <path d="M1020 790 L1020 805" class="line"/>
+  <path d="M1085 760 L1280 758" class="line"/>
+  <path d="M865 855 L1280 820" class="line"/>
+  <path d="M1020 855 L1400 820" class="secure"/>
+  <path d="M1640 767 L1085 767" class="secure"/>
+  <path d="M1800 767 L1840 743" class="line"/>
+  <path d="M1800 767 L1965 743" class="line"/>
+  <path d="M1800 785 L1840 813" class="line"/>
+  <path d="M1800 785 L1965 813" class="line"/>
+
+  <rect x="95" y="900" width="650" height="32" class="note"/>
+  <text x="115" y="921" class="note-text">Use when: compliance matters, HA is required, production traffic must be segmented.</text>
+  <rect x="775" y="900" width="730" height="32" class="note"/>
+  <text x="795" y="921" class="note-text">Main control: app and data subnets are private; secrets come from Vault; logs go to SIEM.</text>
+
+  <!-- Option 3 -->
+  <rect x="60" y="995" width="2080" height="380" class="panel"/>
+  <text x="95" y="1040" class="panel-title">Option 3 - Multi-Site / Zero-Trust Connector Architecture</text>
+  <text x="95" y="1067" class="panel-sub">Best for large enterprises with branches, cloud VPCs, OT/DMZ zones, or strict firewall boundaries. Console stays central; agents scan locally.</text>
+
+  <rect x="95" y="1100" width="470" height="205" class="zone"/>
+  <text x="120" y="1130" class="zone-title">CENTRAL PRODUCTION PLATFORM</text>
+  <rect x="125" y="1160" width="120" height="55" class="box orange"/>
+  <text x="157" y="1193" class="label">WAF</text>
+  <rect x="275" y="1160" width="120" height="55" class="box green"/>
+  <text x="313" y="1193" class="label">API</text>
+  <rect x="425" y="1160" width="105" height="55" class="box green"/>
+  <text x="453" y="1193" class="label">Jobs</text>
+  <rect x="150" y="1235" width="130" height="48" class="box red"/>
+  <text x="176" y="1265" class="small">PostgreSQL</text>
+  <rect x="315" y="1235" width="90" height="48" class="box red"/>
+  <text x="343" y="1265" class="small">Redis</text>
+  <rect x="430" y="1235" width="90" height="48" class="box red"/>
+  <text x="455" y="1265" class="small">Vault</text>
+
+  <rect x="630" y="1100" width="310" height="205" class="zone"/>
+  <text x="655" y="1130" class="zone-title">BRANCH SITE A</text>
+  <rect x="670" y="1160" width="130" height="55" class="box purple"/>
+  <text x="703" y="1193" class="label">Agent</text>
+  <rect x="830" y="1150" width="80" height="42" class="box"/>
+  <text x="847" y="1176" class="small">Win</text>
+  <rect x="830" y="1208" width="80" height="42" class="box"/>
+  <text x="845" y="1234" class="small">Linux</text>
+
+  <rect x="995" y="1100" width="310" height="205" class="zone"/>
+  <text x="1020" y="1130" class="zone-title">CLOUD VPC / SUBSCRIPTION</text>
+  <rect x="1035" y="1160" width="130" height="55" class="box purple"/>
+  <text x="1068" y="1193" class="label">Agent</text>
+  <rect x="1195" y="1150" width="80" height="42" class="box"/>
+  <text x="1217" y="1176" class="small">VMs</text>
+  <rect x="1195" y="1208" width="80" height="42" class="box"/>
+  <text x="1218" y="1234" class="small">DBs</text>
+
+  <rect x="1360" y="1100" width="310" height="205" class="zone"/>
+  <text x="1385" y="1130" class="zone-title">DMZ / OT / RESTRICTED ZONE</text>
+  <rect x="1400" y="1160" width="130" height="55" class="box purple"/>
+  <text x="1433" y="1193" class="label">Agent</text>
+  <rect x="1560" y="1150" width="80" height="42" class="box"/>
+  <text x="1574" y="1176" class="small">Srv</text>
+  <rect x="1560" y="1208" width="80" height="42" class="box"/>
+  <text x="1578" y="1234" class="small">DB</text>
+
+  <rect x="1725" y="1100" width="330" height="205" class="zone"/>
+  <text x="1750" y="1130" class="zone-title">REGIONAL DR PLATFORM</text>
+  <rect x="1765" y="1160" width="120" height="55" class="box green"/>
+  <text x="1803" y="1193" class="label">API</text>
+  <rect x="1915" y="1160" width="100" height="55" class="box red"/>
+  <text x="1942" y="1193" class="small">Replica</text>
+  <rect x="1812" y="1235" width="155" height="48" class="box dark"/>
+  <text x="1840" y="1265" class="small">Warm standby</text>
+
+  <path d="M245 1188 L275 1188" class="line"/>
+  <path d="M395 1188 L425 1188" class="line"/>
+  <path d="M335 1215 L215 1235" class="line"/>
+  <path d="M455 1215 L455 1235" class="secure"/>
+  <path d="M670 1188 L395 1188" class="secure"/>
+  <path d="M1035 1188 L395 1188" class="secure"/>
+  <path d="M1400 1188 L395 1188" class="secure"/>
+  <path d="M800 1188 L830 1171" class="line"/>
+  <path d="M800 1200 L830 1229" class="line"/>
+  <path d="M1165 1188 L1195 1171" class="line"/>
+  <path d="M1165 1200 L1195 1229" class="line"/>
+  <path d="M1530 1188 L1560 1171" class="line"/>
+  <path d="M1530 1200 L1560 1229" class="line"/>
+  <path d="M530 1188 L1765 1188" class="dash"/>
+  <path d="M530 1260 L1915 1190" class="dash"/>
+
+  <rect x="95" y="1325" width="720" height="32" class="note"/>
+  <text x="115" y="1346" class="note-text">Use when: many network zones, strict firewall rules, remote sites, cloud, DMZ, or OT segments.</text>
+  <rect x="845" y="1325" width="800" height="32" class="note"/>
+  <text x="865" y="1346" class="note-text">Main control: agents never accept inbound traffic; all sites call home over HTTPS 443 using rotated tokens/mTLS.</text>
+
+  <text x="70" y="1418" class="muted">Legend: blue = user/UI, orange = ingress/edge, green = app/services, red = data/secrets, purple = connector agents, grey dashed = replication/observability/control-plane.</text>
+</svg>

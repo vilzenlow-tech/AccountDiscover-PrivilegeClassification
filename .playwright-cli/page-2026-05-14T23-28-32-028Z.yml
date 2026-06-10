@@ -1,0 +1,140 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e17]:
+      - complementary [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]: ADPCT
+          - generic [ref=e21]: Account Discovery & Privilege
+        - navigation [ref=e22]:
+          - link "▦ Dashboard" [ref=e23] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e24]: ▦
+            - text: Dashboard
+          - link "A Accounts" [ref=e25] [cursor=pointer]:
+            - /url: /accounts
+            - generic [ref=e26]: A
+            - text: Accounts
+          - link "S Assets" [ref=e27] [cursor=pointer]:
+            - /url: /assets
+            - generic [ref=e28]: S
+            - text: Assets
+          - link "C Connectors" [ref=e29] [cursor=pointer]:
+            - /url: /connectors
+            - generic [ref=e30]: C
+            - text: Connectors
+          - link "J Scans" [ref=e31] [cursor=pointer]:
+            - /url: /scans
+            - generic [ref=e32]: J
+            - text: Scans
+          - link "F Findings" [ref=e33] [cursor=pointer]:
+            - /url: /findings
+            - generic [ref=e34]: F
+            - text: Findings
+          - link "🔑 Password Policy" [ref=e35] [cursor=pointer]:
+            - /url: /password-policy
+            - generic [ref=e36]: 🔑
+            - text: Password Policy
+          - link "R Rules" [ref=e37] [cursor=pointer]:
+            - /url: /rules
+            - generic [ref=e38]: R
+            - text: Rules
+          - link "E Exceptions" [ref=e39] [cursor=pointer]:
+            - /url: /exceptions
+            - generic [ref=e40]: E
+            - text: Exceptions
+          - link "# Tags" [ref=e41] [cursor=pointer]:
+            - /url: /tags
+            - generic [ref=e42]: "#"
+            - text: Tags
+          - link "⇄ Agent Connectors" [ref=e43] [cursor=pointer]:
+            - /url: /connector-agents
+            - generic [ref=e44]: ⇄
+            - text: Agent Connectors
+          - link "L Audit Log" [ref=e45] [cursor=pointer]:
+            - /url: /audit
+            - generic [ref=e46]: L
+            - text: Audit Log
+          - link "? Help" [ref=e47] [cursor=pointer]:
+            - /url: /help
+            - generic [ref=e48]: "?"
+            - text: Help
+        - generic [ref=e49]:
+          - generic [ref=e50]: admin@local
+          - generic [ref=e51]: admin
+          - button "Sign out" [ref=e52] [cursor=pointer]
+      - main [ref=e53]:
+        - generic [ref=e54]:
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - heading "Dashboard" [level=1] [ref=e57]
+              - paragraph [ref=e58]: "Last scan: 15 May 2026 07:26"
+            - button "+ Launch Scan" [ref=e60] [cursor=pointer]
+          - generic [ref=e61]:
+            - generic [ref=e62]:
+              - generic [ref=e63] [cursor=pointer]:
+                - generic [ref=e64]: Total Assets
+                - generic [ref=e65]: "21"
+              - generic [ref=e66] [cursor=pointer]:
+                - generic [ref=e67]: Total Accounts
+                - generic [ref=e68]: "284"
+              - generic [ref=e69] [cursor=pointer]:
+                - generic [ref=e70]: Privileged
+                - generic [ref=e71]: "46"
+              - generic [ref=e72]:
+                - generic [ref=e73]: New (7d)
+                - generic [ref=e74]: "4"
+                - generic [ref=e75]: newly privileged
+              - generic [ref=e76] [cursor=pointer]:
+                - generic [ref=e77]: Dormant Priv.
+                - generic [ref=e78]: "44"
+              - generic [ref=e79] [cursor=pointer]:
+                - generic [ref=e80]: Shared Priv.
+                - generic [ref=e81]: "19"
+              - generic [ref=e82] [cursor=pointer]:
+                - generic [ref=e83]: Unknown / Review
+                - generic [ref=e84]: "0"
+              - generic [ref=e85] [cursor=pointer]:
+                - generic [ref=e86]: Open Alerts
+                - generic [ref=e87]: "303"
+            - generic [ref=e88]:
+              - generic [ref=e89]:
+                - heading "Classification Breakdown" [level=2] [ref=e90]
+                - generic [ref=e92]:
+                  - img [ref=e93]:
+                    - generic [ref=e95]:
+                      - generic [ref=e97]: "0"
+                      - generic [ref=e99]: "15"
+                      - generic [ref=e101]: "30"
+                      - generic [ref=e103]: "45"
+                      - generic [ref=e105]: "60"
+                    - generic [ref=e107]:
+                      - generic [ref=e109]: dormantprivileged
+                      - generic [ref=e111]: sensitive nonadmin
+                      - generic [ref=e113]: full admin
+                  - generic:
+                    - generic:
+                      - paragraph: full_admin
+                      - list:
+                        - listitem: ": 2 accounts"
+              - generic [ref=e123]:
+                - heading "Accounts by Platform" [level=2] [ref=e124]
+                - img [ref=e127]:
+                  - generic [ref=e129]:
+                    - generic [ref=e131]: CentOS
+                    - generic [ref=e133]: Windows
+                    - generic [ref=e135]: MySQL
+                    - generic [ref=e137]: Oracle DB
+                    - generic [ref=e139]: RHEL
+                  - generic [ref=e141]:
+                    - generic [ref=e143]: "0"
+                    - generic [ref=e145]: "30"
+                    - generic [ref=e147]: "60"
+                    - generic [ref=e149]: "90"
+                    - generic [ref=e151]: "120"
+    - button "Open AI Assistant" [ref=e171] [cursor=pointer]:
+      - img [ref=e172]
+      - generic [ref=e174]: AI
+    - generic [ref=e175]:
+      - generic [ref=e176]: 🔒
+      - status [ref=e177]: Please change your password.
+  - generic [ref=e178]: "90"

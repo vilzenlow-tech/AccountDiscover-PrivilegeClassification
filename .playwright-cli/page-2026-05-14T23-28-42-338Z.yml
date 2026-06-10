@@ -1,0 +1,1100 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e17]:
+      - complementary [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]: ADPCT
+          - generic [ref=e21]: Account Discovery & Privilege
+        - navigation [ref=e22]:
+          - link "▦ Dashboard" [ref=e23] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e24]: ▦
+            - text: Dashboard
+          - link "A Accounts" [active] [ref=e25] [cursor=pointer]:
+            - /url: /accounts
+            - generic [ref=e26]: A
+            - text: Accounts
+          - link "S Assets" [ref=e27] [cursor=pointer]:
+            - /url: /assets
+            - generic [ref=e28]: S
+            - text: Assets
+          - link "C Connectors" [ref=e29] [cursor=pointer]:
+            - /url: /connectors
+            - generic [ref=e30]: C
+            - text: Connectors
+          - link "J Scans" [ref=e31] [cursor=pointer]:
+            - /url: /scans
+            - generic [ref=e32]: J
+            - text: Scans
+          - link "F Findings" [ref=e33] [cursor=pointer]:
+            - /url: /findings
+            - generic [ref=e34]: F
+            - text: Findings
+          - link "🔑 Password Policy" [ref=e35] [cursor=pointer]:
+            - /url: /password-policy
+            - generic [ref=e36]: 🔑
+            - text: Password Policy
+          - link "R Rules" [ref=e37] [cursor=pointer]:
+            - /url: /rules
+            - generic [ref=e38]: R
+            - text: Rules
+          - link "E Exceptions" [ref=e39] [cursor=pointer]:
+            - /url: /exceptions
+            - generic [ref=e40]: E
+            - text: Exceptions
+          - link "# Tags" [ref=e41] [cursor=pointer]:
+            - /url: /tags
+            - generic [ref=e42]: "#"
+            - text: Tags
+          - link "⇄ Agent Connectors" [ref=e43] [cursor=pointer]:
+            - /url: /connector-agents
+            - generic [ref=e44]: ⇄
+            - text: Agent Connectors
+          - link "L Audit Log" [ref=e45] [cursor=pointer]:
+            - /url: /audit
+            - generic [ref=e46]: L
+            - text: Audit Log
+          - link "? Help" [ref=e47] [cursor=pointer]:
+            - /url: /help
+            - generic [ref=e48]: "?"
+            - text: Help
+        - generic [ref=e49]:
+          - generic [ref=e50]: admin@local
+          - generic [ref=e51]: admin
+          - button "Sign out" [ref=e52] [cursor=pointer]
+      - main [ref=e53]:
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - generic [ref=e181]:
+              - heading "Accounts" [level=1] [ref=e182]
+              - paragraph [ref=e183]: 284 accounts
+            - generic [ref=e184]:
+              - button "CSV" [ref=e185] [cursor=pointer]
+              - button "Excel" [ref=e186] [cursor=pointer]
+          - generic [ref=e187]:
+            - textbox "Search account name…" [ref=e188]
+            - combobox [ref=e189]:
+              - option "All classes" [selected]
+              - option "Full Admin"
+              - option "Admin Equivalent"
+              - option "Operator – High Impact"
+              - option "Delegated Admin"
+              - option "Privileged Service"
+              - option "Dormant Privileged"
+              - option "Unknown / Review"
+              - option "Non-Privileged"
+            - combobox [ref=e190]:
+              - option "All platforms" [selected]
+              - option "RHEL"
+              - option "CentOS"
+              - option "Ubuntu"
+              - option "SLES"
+              - option "Solaris"
+              - option "AIX"
+              - option "HP-UX"
+              - option "Windows"
+              - option "MySQL"
+              - option "MSSQL"
+              - option "MongoDB"
+              - option "Oracle DB"
+              - option "PostgreSQL"
+              - option "Redis"
+            - combobox [ref=e191]:
+              - option "All logon types" [selected]
+              - option "Interactive Capable"
+              - option "Non-Interactive Only"
+              - option "Service / Batch Only"
+              - option "Network Only"
+              - option "Interactive (legacy)"
+              - option "Non-Interactive (legacy)"
+              - option "Review Required"
+              - option "Unknown"
+            - generic [ref=e192] [cursor=pointer]:
+              - checkbox "Privileged only" [ref=e193]
+              - text: Privileged only
+            - generic [ref=e194] [cursor=pointer]:
+              - checkbox "Shared only" [ref=e195]
+              - text: Shared only
+          - table [ref=e197]:
+            - rowgroup [ref=e198]:
+              - row "Account Platform Asset Classification Risk Type Status / Logon Last Login Discovered" [ref=e199]:
+                - columnheader "Account" [ref=e200]
+                - columnheader "Platform" [ref=e201]
+                - columnheader "Asset" [ref=e202]
+                - columnheader "Classification" [ref=e203]
+                - columnheader "Risk" [ref=e204]
+                - columnheader "Type" [ref=e205]
+                - columnheader "Status / Logon" [ref=e206]
+                - columnheader "Last Login" [ref=e207]
+                - columnheader "Discovered" [ref=e208]
+            - rowgroup [ref=e209]:
+              - row "admin 192.168.7.130 Local RHEL 192.168.7.130 Dormant Privileged 100 human enabled Interactive 10 Aug 25 25 Apr 26" [ref=e210] [cursor=pointer]:
+                - cell "admin 192.168.7.130 Local" [ref=e211]:
+                  - generic [ref=e213]: admin
+                  - generic [ref=e214]:
+                    - generic [ref=e215]: 192.168.7.130
+                    - generic [ref=e216]: Local
+                - cell "RHEL" [ref=e217]:
+                  - generic [ref=e218]: RHEL
+                - cell "192.168.7.130" [ref=e219]
+                - cell "Dormant Privileged" [ref=e220]:
+                  - generic [ref=e221]: Dormant Privileged
+                - cell "100" [ref=e222]:
+                  - generic [ref=e226]: "100"
+                - cell "human" [ref=e227]
+                - cell "enabled Interactive" [ref=e228]:
+                  - generic [ref=e229]:
+                    - generic [ref=e230]: enabled
+                    - generic [ref=e231]: Interactive
+                - cell "10 Aug 25" [ref=e232]
+                - cell "25 Apr 26" [ref=e233]
+              - row "admin 192.168.7.133 Local Windows 192.168.7.133 Full Admin 100 human enabled Interactive 28 Apr 26 26 Apr 26" [ref=e234] [cursor=pointer]:
+                - cell "admin 192.168.7.133 Local" [ref=e235]:
+                  - generic [ref=e237]: admin
+                  - generic [ref=e238]:
+                    - generic [ref=e239]: 192.168.7.133
+                    - generic [ref=e240]: Local
+                - cell "Windows" [ref=e241]:
+                  - generic [ref=e242]: Windows
+                - cell "192.168.7.133" [ref=e243]
+                - cell "Full Admin" [ref=e244]:
+                  - generic [ref=e245]: Full Admin
+                - cell "100" [ref=e246]:
+                  - generic [ref=e250]: "100"
+                - cell "human" [ref=e251]
+                - cell "enabled Interactive" [ref=e252]:
+                  - generic [ref=e253]:
+                    - generic [ref=e254]: enabled
+                    - generic [ref=e255]: Interactive
+                - cell "28 Apr 26" [ref=e256]
+                - cell "26 Apr 26" [ref=e257]
+              - row "admin@admin 192.168.7.130 MongoDB 192.168.7.130 Dormant Privileged 100 service enabled Non-Interactive — 13 May 26" [ref=e258] [cursor=pointer]:
+                - cell "admin@admin 192.168.7.130" [ref=e259]:
+                  - generic [ref=e261]: admin@admin
+                  - generic [ref=e263]: 192.168.7.130
+                - cell "MongoDB" [ref=e264]:
+                  - generic [ref=e265]: MongoDB
+                - cell "192.168.7.130" [ref=e266]
+                - cell "Dormant Privileged" [ref=e267]:
+                  - generic [ref=e268]: Dormant Privileged
+                - cell "100" [ref=e269]:
+                  - generic [ref=e273]: "100"
+                - cell "service" [ref=e274]
+                - cell "enabled Non-Interactive" [ref=e275]:
+                  - generic [ref=e276]:
+                    - generic [ref=e277]: enabled
+                    - generic [ref=e278]: Non-Interactive
+                - cell "—" [ref=e279]
+                - cell "13 May 26" [ref=e280]
+              - row "Administrator Shared 192.168.101.125 Local Windows 192.168.101.125 Full Admin 100 built_in enabled Review Reqd 25 Apr 26 25 Apr 26" [ref=e281] [cursor=pointer]:
+                - cell "Administrator Shared 192.168.101.125 Local" [ref=e282]:
+                  - generic [ref=e283]:
+                    - generic [ref=e284]: Administrator
+                    - generic [ref=e285]: Shared
+                  - generic [ref=e286]:
+                    - generic [ref=e287]: 192.168.101.125
+                    - generic [ref=e288]: Local
+                - cell "Windows" [ref=e289]:
+                  - generic [ref=e290]: Windows
+                - cell "192.168.101.125" [ref=e291]
+                - cell "Full Admin" [ref=e292]:
+                  - generic [ref=e293]: Full Admin
+                - cell "100" [ref=e294]:
+                  - generic [ref=e298]: "100"
+                - cell "built_in" [ref=e299]
+                - cell "enabled Review Reqd" [ref=e300]:
+                  - generic [ref=e301]:
+                    - generic [ref=e302]: enabled
+                    - generic [ref=e303]: Review Reqd
+                - cell "25 Apr 26" [ref=e304]
+                - cell "25 Apr 26" [ref=e305]
+              - row "Administrator Shared 192.168.7.133 Local Windows 192.168.7.133 Dormant Privileged 100 built_in disabled Interactive — 26 Apr 26" [ref=e306] [cursor=pointer]:
+                - cell "Administrator Shared 192.168.7.133 Local" [ref=e307]:
+                  - generic [ref=e308]:
+                    - generic [ref=e309]: Administrator
+                    - generic [ref=e310]: Shared
+                  - generic [ref=e311]:
+                    - generic [ref=e312]: 192.168.7.133
+                    - generic [ref=e313]: Local
+                - cell "Windows" [ref=e314]:
+                  - generic [ref=e315]: Windows
+                - cell "192.168.7.133" [ref=e316]
+                - cell "Dormant Privileged" [ref=e317]:
+                  - generic [ref=e318]: Dormant Privileged
+                - cell "100" [ref=e319]:
+                  - generic [ref=e323]: "100"
+                - cell "built_in" [ref=e324]
+                - cell "disabled Interactive" [ref=e325]:
+                  - generic [ref=e326]:
+                    - generic [ref=e327]: disabled
+                    - generic [ref=e328]: Interactive
+                - cell "—" [ref=e329]
+                - cell "26 Apr 26" [ref=e330]
+              - row "admin_local1 192.168.101.125 Local Windows 192.168.101.125 Dormant Privileged 100 human enabled Review Reqd — 25 Apr 26" [ref=e331] [cursor=pointer]:
+                - cell "admin_local1 192.168.101.125 Local" [ref=e332]:
+                  - generic [ref=e334]: admin_local1
+                  - generic [ref=e335]:
+                    - generic [ref=e336]: 192.168.101.125
+                    - generic [ref=e337]: Local
+                - cell "Windows" [ref=e338]:
+                  - generic [ref=e339]: Windows
+                - cell "192.168.101.125" [ref=e340]
+                - cell "Dormant Privileged" [ref=e341]:
+                  - generic [ref=e342]: Dormant Privileged
+                - cell "100" [ref=e343]:
+                  - generic [ref=e347]: "100"
+                - cell "human" [ref=e348]
+                - cell "enabled Review Reqd" [ref=e349]:
+                  - generic [ref=e350]:
+                    - generic [ref=e351]: enabled
+                    - generic [ref=e352]: Review Reqd
+                - cell "—" [ref=e353]
+                - cell "25 Apr 26" [ref=e354]
+              - row "admin_local2 192.168.101.125 Local Windows 192.168.101.125 Dormant Privileged 100 human enabled Review Reqd — 25 Apr 26" [ref=e355] [cursor=pointer]:
+                - cell "admin_local2 192.168.101.125 Local" [ref=e356]:
+                  - generic [ref=e358]: admin_local2
+                  - generic [ref=e359]:
+                    - generic [ref=e360]: 192.168.101.125
+                    - generic [ref=e361]: Local
+                - cell "Windows" [ref=e362]:
+                  - generic [ref=e363]: Windows
+                - cell "192.168.101.125" [ref=e364]
+                - cell "Dormant Privileged" [ref=e365]:
+                  - generic [ref=e366]: Dormant Privileged
+                - cell "100" [ref=e367]:
+                  - generic [ref=e371]: "100"
+                - cell "human" [ref=e372]
+                - cell "enabled Review Reqd" [ref=e373]:
+                  - generic [ref=e374]:
+                    - generic [ref=e375]: enabled
+                    - generic [ref=e376]: Review Reqd
+                - cell "—" [ref=e377]
+                - cell "25 Apr 26" [ref=e378]
+              - row "app_adm 192.168.101.125 Local Windows 192.168.101.125 Dormant Privileged 100 human enabled Review Reqd — 25 Apr 26" [ref=e379] [cursor=pointer]:
+                - cell "app_adm 192.168.101.125 Local" [ref=e380]:
+                  - generic [ref=e382]: app_adm
+                  - generic [ref=e383]:
+                    - generic [ref=e384]: 192.168.101.125
+                    - generic [ref=e385]: Local
+                - cell "Windows" [ref=e386]:
+                  - generic [ref=e387]: Windows
+                - cell "192.168.101.125" [ref=e388]
+                - cell "Dormant Privileged" [ref=e389]:
+                  - generic [ref=e390]: Dormant Privileged
+                - cell "100" [ref=e391]:
+                  - generic [ref=e395]: "100"
+                - cell "human" [ref=e396]
+                - cell "enabled Review Reqd" [ref=e397]:
+                  - generic [ref=e398]:
+                    - generic [ref=e399]: enabled
+                    - generic [ref=e400]: Review Reqd
+                - cell "—" [ref=e401]
+                - cell "25 Apr 26" [ref=e402]
+              - row "app_adm 192.168.7.132 Local CentOS 192.168.7.132 Dormant Privileged 100 human enabled Interactive 30 Aug 25 25 Apr 26" [ref=e403] [cursor=pointer]:
+                - cell "app_adm 192.168.7.132 Local" [ref=e404]:
+                  - generic [ref=e406]: app_adm
+                  - generic [ref=e407]:
+                    - generic [ref=e408]: 192.168.7.132
+                    - generic [ref=e409]: Local
+                - cell "CentOS" [ref=e410]:
+                  - generic [ref=e411]: CentOS
+                - cell "192.168.7.132" [ref=e412]
+                - cell "Dormant Privileged" [ref=e413]:
+                  - generic [ref=e414]: Dormant Privileged
+                - cell "100" [ref=e415]:
+                  - generic [ref=e419]: "100"
+                - cell "human" [ref=e420]
+                - cell "enabled Interactive" [ref=e421]:
+                  - generic [ref=e422]:
+                    - generic [ref=e423]: enabled
+                    - generic [ref=e424]: Interactive
+                - cell "30 Aug 25" [ref=e425]
+                - cell "25 Apr 26" [ref=e426]
+              - row "app_admin1 192.168.7.132 PostgreSQL 192.168.7.132 Dormant Privileged 100 human enabled Non-Interactive — 25 Apr 26" [ref=e427] [cursor=pointer]:
+                - cell "app_admin1 192.168.7.132" [ref=e428]:
+                  - generic [ref=e430]: app_admin1
+                  - generic [ref=e432]: 192.168.7.132
+                - cell "PostgreSQL" [ref=e433]:
+                  - generic [ref=e434]: PostgreSQL
+                - cell "192.168.7.132" [ref=e435]
+                - cell "Dormant Privileged" [ref=e436]:
+                  - generic [ref=e437]: Dormant Privileged
+                - cell "100" [ref=e438]:
+                  - generic [ref=e442]: "100"
+                - cell "human" [ref=e443]
+                - cell "enabled Non-Interactive" [ref=e444]:
+                  - generic [ref=e445]:
+                    - generic [ref=e446]: enabled
+                    - generic [ref=e447]: Non-Interactive
+                - cell "—" [ref=e448]
+                - cell "25 Apr 26" [ref=e449]
+              - row "DEMO\\Administrator 192.168.7.133 Domain Windows 192.168.7.133 Dormant Privileged 100 human unknown Interactive — 26 Apr 26" [ref=e450] [cursor=pointer]:
+                - cell "DEMO\\Administrator 192.168.7.133 Domain" [ref=e451]:
+                  - generic [ref=e453]: DEMO\Administrator
+                  - generic [ref=e454]:
+                    - generic [ref=e455]: 192.168.7.133
+                    - generic [ref=e456]: Domain
+                - cell "Windows" [ref=e457]:
+                  - generic [ref=e458]: Windows
+                - cell "192.168.7.133" [ref=e459]
+                - cell "Dormant Privileged" [ref=e460]:
+                  - generic [ref=e461]: Dormant Privileged
+                - cell "100" [ref=e462]:
+                  - generic [ref=e466]: "100"
+                - cell "human" [ref=e467]
+                - cell "unknown Interactive" [ref=e468]:
+                  - generic [ref=e469]:
+                    - generic [ref=e470]: unknown
+                    - generic [ref=e471]: Interactive
+                - cell "—" [ref=e472]
+                - cell "26 Apr 26" [ref=e473]
+              - row "DEMO\\Administrator 192.168.101.115 MSSQL 192.168.101.115 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e474] [cursor=pointer]:
+                - cell "DEMO\\Administrator 192.168.101.115" [ref=e475]:
+                  - generic [ref=e477]: DEMO\Administrator
+                  - generic [ref=e479]: 192.168.101.115
+                - cell "MSSQL" [ref=e480]:
+                  - generic [ref=e481]: MSSQL
+                - cell "192.168.101.115" [ref=e482]
+                - cell "Dormant Privileged" [ref=e483]:
+                  - generic [ref=e484]: Dormant Privileged
+                - cell "100" [ref=e485]:
+                  - generic [ref=e489]: "100"
+                - cell "service" [ref=e490]
+                - cell "enabled Non-Interactive" [ref=e491]:
+                  - generic [ref=e492]:
+                    - generic [ref=e493]: enabled
+                    - generic [ref=e494]: Non-Interactive
+                - cell "—" [ref=e495]
+                - cell "25 Apr 26" [ref=e496]
+              - row "DEMO\\Domain Admins Shared 192.168.7.133 Domain Windows 192.168.7.133 Dormant Privileged 100 unknown unknown Review Reqd — 26 Apr 26" [ref=e497] [cursor=pointer]:
+                - cell "DEMO\\Domain Admins Shared 192.168.7.133 Domain" [ref=e498]:
+                  - generic [ref=e499]:
+                    - generic [ref=e500]: DEMO\Domain Admins
+                    - generic [ref=e501]: Shared
+                  - generic [ref=e502]:
+                    - generic [ref=e503]: 192.168.7.133
+                    - generic [ref=e504]: Domain
+                - cell "Windows" [ref=e505]:
+                  - generic [ref=e506]: Windows
+                - cell "192.168.7.133" [ref=e507]
+                - cell "Dormant Privileged" [ref=e508]:
+                  - generic [ref=e509]: Dormant Privileged
+                - cell "100" [ref=e510]:
+                  - generic [ref=e514]: "100"
+                - cell "unknown" [ref=e515]
+                - cell "unknown Review Reqd" [ref=e516]:
+                  - generic [ref=e517]:
+                    - generic [ref=e518]: unknown
+                    - generic [ref=e519]: Review Reqd
+                - cell "—" [ref=e520]
+                - cell "26 Apr 26" [ref=e521]
+              - row "DEMO\\svc_nonint01 192.168.7.133 Domain Windows 192.168.7.133 Dormant Privileged 100 human unknown Interactive — 26 Apr 26" [ref=e522] [cursor=pointer]:
+                - cell "DEMO\\svc_nonint01 192.168.7.133 Domain" [ref=e523]:
+                  - generic [ref=e525]: DEMO\svc_nonint01
+                  - generic [ref=e526]:
+                    - generic [ref=e527]: 192.168.7.133
+                    - generic [ref=e528]: Domain
+                - cell "Windows" [ref=e529]:
+                  - generic [ref=e530]: Windows
+                - cell "192.168.7.133" [ref=e531]
+                - cell "Dormant Privileged" [ref=e532]:
+                  - generic [ref=e533]: Dormant Privileged
+                - cell "100" [ref=e534]:
+                  - generic [ref=e538]: "100"
+                - cell "human" [ref=e539]
+                - cell "unknown Interactive" [ref=e540]:
+                  - generic [ref=e541]:
+                    - generic [ref=e542]: unknown
+                    - generic [ref=e543]: Interactive
+                - cell "—" [ref=e544]
+                - cell "26 Apr 26" [ref=e545]
+              - row "DEMO\\svc_nonint02 192.168.7.133 Domain Windows 192.168.7.133 Dormant Privileged 100 human unknown Non-Interactive — 26 Apr 26" [ref=e546] [cursor=pointer]:
+                - cell "DEMO\\svc_nonint02 192.168.7.133 Domain" [ref=e547]:
+                  - generic [ref=e549]: DEMO\svc_nonint02
+                  - generic [ref=e550]:
+                    - generic [ref=e551]: 192.168.7.133
+                    - generic [ref=e552]: Domain
+                - cell "Windows" [ref=e553]:
+                  - generic [ref=e554]: Windows
+                - cell "192.168.7.133" [ref=e555]
+                - cell "Dormant Privileged" [ref=e556]:
+                  - generic [ref=e557]: Dormant Privileged
+                - cell "100" [ref=e558]:
+                  - generic [ref=e562]: "100"
+                - cell "human" [ref=e563]
+                - cell "unknown Non-Interactive" [ref=e564]:
+                  - generic [ref=e565]:
+                    - generic [ref=e566]: unknown
+                    - generic [ref=e567]: Non-Interactive
+                - cell "—" [ref=e568]
+                - cell "26 Apr 26" [ref=e569]
+              - row "DEMO\\svc_nonint03 192.168.7.133 Domain Windows 192.168.7.133 Dormant Privileged 100 human unknown Non-Interactive — 26 Apr 26" [ref=e570] [cursor=pointer]:
+                - cell "DEMO\\svc_nonint03 192.168.7.133 Domain" [ref=e571]:
+                  - generic [ref=e573]: DEMO\svc_nonint03
+                  - generic [ref=e574]:
+                    - generic [ref=e575]: 192.168.7.133
+                    - generic [ref=e576]: Domain
+                - cell "Windows" [ref=e577]:
+                  - generic [ref=e578]: Windows
+                - cell "192.168.7.133" [ref=e579]
+                - cell "Dormant Privileged" [ref=e580]:
+                  - generic [ref=e581]: Dormant Privileged
+                - cell "100" [ref=e582]:
+                  - generic [ref=e586]: "100"
+                - cell "human" [ref=e587]
+                - cell "unknown Non-Interactive" [ref=e588]:
+                  - generic [ref=e589]:
+                    - generic [ref=e590]: unknown
+                    - generic [ref=e591]: Non-Interactive
+                - cell "—" [ref=e592]
+                - cell "26 Apr 26" [ref=e593]
+              - row "DEMO\\svc_sync 192.168.7.133 Domain Windows 192.168.7.133 Dormant Privileged 100 human unknown Interactive — 26 Apr 26" [ref=e594] [cursor=pointer]:
+                - cell "DEMO\\svc_sync 192.168.7.133 Domain" [ref=e595]:
+                  - generic [ref=e597]: DEMO\svc_sync
+                  - generic [ref=e598]:
+                    - generic [ref=e599]: 192.168.7.133
+                    - generic [ref=e600]: Domain
+                - cell "Windows" [ref=e601]:
+                  - generic [ref=e602]: Windows
+                - cell "192.168.7.133" [ref=e603]
+                - cell "Dormant Privileged" [ref=e604]:
+                  - generic [ref=e605]: Dormant Privileged
+                - cell "100" [ref=e606]:
+                  - generic [ref=e610]: "100"
+                - cell "human" [ref=e611]
+                - cell "unknown Interactive" [ref=e612]:
+                  - generic [ref=e613]:
+                    - generic [ref=e614]: unknown
+                    - generic [ref=e615]: Interactive
+                - cell "—" [ref=e616]
+                - cell "26 Apr 26" [ref=e617]
+              - row "mongo_admin1@admin 192.168.7.130 MongoDB 192.168.7.130 Dormant Privileged 100 service enabled Non-Interactive — 13 May 26" [ref=e618] [cursor=pointer]:
+                - cell "mongo_admin1@admin 192.168.7.130" [ref=e619]:
+                  - generic [ref=e621]: mongo_admin1@admin
+                  - generic [ref=e623]: 192.168.7.130
+                - cell "MongoDB" [ref=e624]:
+                  - generic [ref=e625]: MongoDB
+                - cell "192.168.7.130" [ref=e626]
+                - cell "Dormant Privileged" [ref=e627]:
+                  - generic [ref=e628]: Dormant Privileged
+                - cell "100" [ref=e629]:
+                  - generic [ref=e633]: "100"
+                - cell "service" [ref=e634]
+                - cell "enabled Non-Interactive" [ref=e635]:
+                  - generic [ref=e636]:
+                    - generic [ref=e637]: enabled
+                    - generic [ref=e638]: Non-Interactive
+                - cell "—" [ref=e639]
+                - cell "13 May 26" [ref=e640]
+              - row "mongo_admin2@admin 192.168.7.130 MongoDB 192.168.7.130 Dormant Privileged 100 service enabled Non-Interactive — 13 May 26" [ref=e641] [cursor=pointer]:
+                - cell "mongo_admin2@admin 192.168.7.130" [ref=e642]:
+                  - generic [ref=e644]: mongo_admin2@admin
+                  - generic [ref=e646]: 192.168.7.130
+                - cell "MongoDB" [ref=e647]:
+                  - generic [ref=e648]: MongoDB
+                - cell "192.168.7.130" [ref=e649]
+                - cell "Dormant Privileged" [ref=e650]:
+                  - generic [ref=e651]: Dormant Privileged
+                - cell "100" [ref=e652]:
+                  - generic [ref=e656]: "100"
+                - cell "service" [ref=e657]
+                - cell "enabled Non-Interactive" [ref=e658]:
+                  - generic [ref=e659]:
+                    - generic [ref=e660]: enabled
+                    - generic [ref=e661]: Non-Interactive
+                - cell "—" [ref=e662]
+                - cell "13 May 26" [ref=e663]
+              - row "mysql.session@localhost 192.168.7.130 MySQL 192.168.7.130 Dormant Privileged 100 service locked Non-Interactive — 25 Apr 26" [ref=e664] [cursor=pointer]:
+                - cell "mysql.session@localhost 192.168.7.130" [ref=e665]:
+                  - generic [ref=e667]: mysql.session@localhost
+                  - generic [ref=e669]: 192.168.7.130
+                - cell "MySQL" [ref=e670]:
+                  - generic [ref=e671]: MySQL
+                - cell "192.168.7.130" [ref=e672]
+                - cell "Dormant Privileged" [ref=e673]:
+                  - generic [ref=e674]: Dormant Privileged
+                - cell "100" [ref=e675]:
+                  - generic [ref=e679]: "100"
+                - cell "service" [ref=e680]
+                - cell "locked Non-Interactive" [ref=e681]:
+                  - generic [ref=e682]:
+                    - generic [ref=e683]: locked
+                    - generic [ref=e684]: Non-Interactive
+                - cell "—" [ref=e685]
+                - cell "25 Apr 26" [ref=e686]
+              - row "newuser 192.168.7.130 Local RHEL 192.168.7.130 Dormant Privileged 100 human enabled Interactive — 25 Apr 26" [ref=e687] [cursor=pointer]:
+                - cell "newuser 192.168.7.130 Local" [ref=e688]:
+                  - generic [ref=e690]: newuser
+                  - generic [ref=e691]:
+                    - generic [ref=e692]: 192.168.7.130
+                    - generic [ref=e693]: Local
+                - cell "RHEL" [ref=e694]:
+                  - generic [ref=e695]: RHEL
+                - cell "192.168.7.130" [ref=e696]
+                - cell "Dormant Privileged" [ref=e697]:
+                  - generic [ref=e698]: Dormant Privileged
+                - cell "100" [ref=e699]:
+                  - generic [ref=e703]: "100"
+                - cell "human" [ref=e704]
+                - cell "enabled Interactive" [ref=e705]:
+                  - generic [ref=e706]:
+                    - generic [ref=e707]: enabled
+                    - generic [ref=e708]: Interactive
+                - cell "—" [ref=e709]
+                - cell "25 Apr 26" [ref=e710]
+              - row "NT Service\\MSSQL$SQLEXPRESS 192.168.101.115 MSSQL 192.168.101.115 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e711] [cursor=pointer]:
+                - cell "NT Service\\MSSQL$SQLEXPRESS 192.168.101.115" [ref=e712]:
+                  - generic [ref=e714]: NT Service\MSSQL$SQLEXPRESS
+                  - generic [ref=e716]: 192.168.101.115
+                - cell "MSSQL" [ref=e717]:
+                  - generic [ref=e718]: MSSQL
+                - cell "192.168.101.115" [ref=e719]
+                - cell "Dormant Privileged" [ref=e720]:
+                  - generic [ref=e721]: Dormant Privileged
+                - cell "100" [ref=e722]:
+                  - generic [ref=e726]: "100"
+                - cell "service" [ref=e727]
+                - cell "enabled Non-Interactive" [ref=e728]:
+                  - generic [ref=e729]:
+                    - generic [ref=e730]: enabled
+                    - generic [ref=e731]: Non-Interactive
+                - cell "—" [ref=e732]
+                - cell "25 Apr 26" [ref=e733]
+              - row "NT SERVICE\\SQLWriter 192.168.101.115 MSSQL 192.168.101.115 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e734] [cursor=pointer]:
+                - cell "NT SERVICE\\SQLWriter 192.168.101.115" [ref=e735]:
+                  - generic [ref=e737]: NT SERVICE\SQLWriter
+                  - generic [ref=e739]: 192.168.101.115
+                - cell "MSSQL" [ref=e740]:
+                  - generic [ref=e741]: MSSQL
+                - cell "192.168.101.115" [ref=e742]
+                - cell "Dormant Privileged" [ref=e743]:
+                  - generic [ref=e744]: Dormant Privileged
+                - cell "100" [ref=e745]:
+                  - generic [ref=e749]: "100"
+                - cell "service" [ref=e750]
+                - cell "enabled Non-Interactive" [ref=e751]:
+                  - generic [ref=e752]:
+                    - generic [ref=e753]: enabled
+                    - generic [ref=e754]: Non-Interactive
+                - cell "—" [ref=e755]
+                - cell "25 Apr 26" [ref=e756]
+              - row "NT SERVICE\\Winmgmt 192.168.101.115 MSSQL 192.168.101.115 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e757] [cursor=pointer]:
+                - cell "NT SERVICE\\Winmgmt 192.168.101.115" [ref=e758]:
+                  - generic [ref=e760]: NT SERVICE\Winmgmt
+                  - generic [ref=e762]: 192.168.101.115
+                - cell "MSSQL" [ref=e763]:
+                  - generic [ref=e764]: MSSQL
+                - cell "192.168.101.115" [ref=e765]
+                - cell "Dormant Privileged" [ref=e766]:
+                  - generic [ref=e767]: Dormant Privileged
+                - cell "100" [ref=e768]:
+                  - generic [ref=e772]: "100"
+                - cell "service" [ref=e773]
+                - cell "enabled Non-Interactive" [ref=e774]:
+                  - generic [ref=e775]:
+                    - generic [ref=e776]: enabled
+                    - generic [ref=e777]: Non-Interactive
+                - cell "—" [ref=e778]
+                - cell "25 Apr 26" [ref=e779]
+              - row "ops_admin1 192.168.7.132 Local CentOS 192.168.7.132 Dormant Privileged 100 human enabled Interactive — 25 Apr 26" [ref=e780] [cursor=pointer]:
+                - cell "ops_admin1 192.168.7.132 Local" [ref=e781]:
+                  - generic [ref=e783]: ops_admin1
+                  - generic [ref=e784]:
+                    - generic [ref=e785]: 192.168.7.132
+                    - generic [ref=e786]: Local
+                - cell "CentOS" [ref=e787]:
+                  - generic [ref=e788]: CentOS
+                - cell "192.168.7.132" [ref=e789]
+                - cell "Dormant Privileged" [ref=e790]:
+                  - generic [ref=e791]: Dormant Privileged
+                - cell "100" [ref=e792]:
+                  - generic [ref=e796]: "100"
+                - cell "human" [ref=e797]
+                - cell "enabled Interactive" [ref=e798]:
+                  - generic [ref=e799]:
+                    - generic [ref=e800]: enabled
+                    - generic [ref=e801]: Interactive
+                - cell "—" [ref=e802]
+                - cell "25 Apr 26" [ref=e803]
+              - row "ops_admin2 192.168.7.132 Local CentOS 192.168.7.132 Dormant Privileged 100 human enabled Interactive — 25 Apr 26" [ref=e804] [cursor=pointer]:
+                - cell "ops_admin2 192.168.7.132 Local" [ref=e805]:
+                  - generic [ref=e807]: ops_admin2
+                  - generic [ref=e808]:
+                    - generic [ref=e809]: 192.168.7.132
+                    - generic [ref=e810]: Local
+                - cell "CentOS" [ref=e811]:
+                  - generic [ref=e812]: CentOS
+                - cell "192.168.7.132" [ref=e813]
+                - cell "Dormant Privileged" [ref=e814]:
+                  - generic [ref=e815]: Dormant Privileged
+                - cell "100" [ref=e816]:
+                  - generic [ref=e820]: "100"
+                - cell "human" [ref=e821]
+                - cell "enabled Interactive" [ref=e822]:
+                  - generic [ref=e823]:
+                    - generic [ref=e824]: enabled
+                    - generic [ref=e825]: Interactive
+                - cell "—" [ref=e826]
+                - cell "25 Apr 26" [ref=e827]
+              - row "postgres 192.168.7.132 PostgreSQL 192.168.7.132 Dormant Privileged 100 built_in enabled Non-Interactive — 25 Apr 26" [ref=e828] [cursor=pointer]:
+                - cell "postgres 192.168.7.132" [ref=e829]:
+                  - generic [ref=e831]: postgres
+                  - generic [ref=e833]: 192.168.7.132
+                - cell "PostgreSQL" [ref=e834]:
+                  - generic [ref=e835]: PostgreSQL
+                - cell "192.168.7.132" [ref=e836]
+                - cell "Dormant Privileged" [ref=e837]:
+                  - generic [ref=e838]: Dormant Privileged
+                - cell "100" [ref=e839]:
+                  - generic [ref=e843]: "100"
+                - cell "built_in" [ref=e844]
+                - cell "enabled Non-Interactive" [ref=e845]:
+                  - generic [ref=e846]:
+                    - generic [ref=e847]: enabled
+                    - generic [ref=e848]: Non-Interactive
+                - cell "—" [ref=e849]
+                - cell "25 Apr 26" [ref=e850]
+              - row "priv_admin1 192.168.7.130 Local RHEL 192.168.7.130 Dormant Privileged 100 human enabled Interactive — 25 Apr 26" [ref=e851] [cursor=pointer]:
+                - cell "priv_admin1 192.168.7.130 Local" [ref=e852]:
+                  - generic [ref=e854]: priv_admin1
+                  - generic [ref=e855]:
+                    - generic [ref=e856]: 192.168.7.130
+                    - generic [ref=e857]: Local
+                - cell "RHEL" [ref=e858]:
+                  - generic [ref=e859]: RHEL
+                - cell "192.168.7.130" [ref=e860]
+                - cell "Dormant Privileged" [ref=e861]:
+                  - generic [ref=e862]: Dormant Privileged
+                - cell "100" [ref=e863]:
+                  - generic [ref=e867]: "100"
+                - cell "human" [ref=e868]
+                - cell "enabled Interactive" [ref=e869]:
+                  - generic [ref=e870]:
+                    - generic [ref=e871]: enabled
+                    - generic [ref=e872]: Interactive
+                - cell "—" [ref=e873]
+                - cell "25 Apr 26" [ref=e874]
+              - row "priv_admin2 192.168.7.130 Local RHEL 192.168.7.130 Dormant Privileged 100 human enabled Interactive — 25 Apr 26" [ref=e875] [cursor=pointer]:
+                - cell "priv_admin2 192.168.7.130 Local" [ref=e876]:
+                  - generic [ref=e878]: priv_admin2
+                  - generic [ref=e879]:
+                    - generic [ref=e880]: 192.168.7.130
+                    - generic [ref=e881]: Local
+                - cell "RHEL" [ref=e882]:
+                  - generic [ref=e883]: RHEL
+                - cell "192.168.7.130" [ref=e884]
+                - cell "Dormant Privileged" [ref=e885]:
+                  - generic [ref=e886]: Dormant Privileged
+                - cell "100" [ref=e887]:
+                  - generic [ref=e891]: "100"
+                - cell "human" [ref=e892]
+                - cell "enabled Interactive" [ref=e893]:
+                  - generic [ref=e894]:
+                    - generic [ref=e895]: enabled
+                    - generic [ref=e896]: Interactive
+                - cell "—" [ref=e897]
+                - cell "25 Apr 26" [ref=e898]
+              - row "root 192.168.7.130 Local RHEL 192.168.7.130 Dormant Privileged 100 built_in enabled Interactive 22 Jun 25 25 Apr 26" [ref=e899] [cursor=pointer]:
+                - cell "root 192.168.7.130 Local" [ref=e900]:
+                  - generic [ref=e902]: root
+                  - generic [ref=e903]:
+                    - generic [ref=e904]: 192.168.7.130
+                    - generic [ref=e905]: Local
+                - cell "RHEL" [ref=e906]:
+                  - generic [ref=e907]: RHEL
+                - cell "192.168.7.130" [ref=e908]
+                - cell "Dormant Privileged" [ref=e909]:
+                  - generic [ref=e910]: Dormant Privileged
+                - cell "100" [ref=e911]:
+                  - generic [ref=e915]: "100"
+                - cell "built_in" [ref=e916]
+                - cell "enabled Interactive" [ref=e917]:
+                  - generic [ref=e918]:
+                    - generic [ref=e919]: enabled
+                    - generic [ref=e920]: Interactive
+                - cell "22 Jun 25" [ref=e921]
+                - cell "25 Apr 26" [ref=e922]
+              - row "root 192.168.7.132 Local CentOS 192.168.7.132 Dormant Privileged 100 built_in enabled Interactive 08 Dec 25 25 Apr 26" [ref=e923] [cursor=pointer]:
+                - cell "root 192.168.7.132 Local" [ref=e924]:
+                  - generic [ref=e926]: root
+                  - generic [ref=e927]:
+                    - generic [ref=e928]: 192.168.7.132
+                    - generic [ref=e929]: Local
+                - cell "CentOS" [ref=e930]:
+                  - generic [ref=e931]: CentOS
+                - cell "192.168.7.132" [ref=e932]
+                - cell "Dormant Privileged" [ref=e933]:
+                  - generic [ref=e934]: Dormant Privileged
+                - cell "100" [ref=e935]:
+                  - generic [ref=e939]: "100"
+                - cell "built_in" [ref=e940]
+                - cell "enabled Interactive" [ref=e941]:
+                  - generic [ref=e942]:
+                    - generic [ref=e943]: enabled
+                    - generic [ref=e944]: Interactive
+                - cell "08 Dec 25" [ref=e945]
+                - cell "25 Apr 26" [ref=e946]
+              - row "root@% 192.168.7.130 MySQL 192.168.7.130 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e947] [cursor=pointer]:
+                - cell "root@% 192.168.7.130" [ref=e948]:
+                  - generic [ref=e950]: root@%
+                  - generic [ref=e952]: 192.168.7.130
+                - cell "MySQL" [ref=e953]:
+                  - generic [ref=e954]: MySQL
+                - cell "192.168.7.130" [ref=e955]
+                - cell "Dormant Privileged" [ref=e956]:
+                  - generic [ref=e957]: Dormant Privileged
+                - cell "100" [ref=e958]:
+                  - generic [ref=e962]: "100"
+                - cell "service" [ref=e963]
+                - cell "enabled Non-Interactive" [ref=e964]:
+                  - generic [ref=e965]:
+                    - generic [ref=e966]: enabled
+                    - generic [ref=e967]: Non-Interactive
+                - cell "—" [ref=e968]
+                - cell "25 Apr 26" [ref=e969]
+              - row "root@localhost 192.168.7.130 MySQL 192.168.7.130 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e970] [cursor=pointer]:
+                - cell "root@localhost 192.168.7.130" [ref=e971]:
+                  - generic [ref=e973]: root@localhost
+                  - generic [ref=e975]: 192.168.7.130
+                - cell "MySQL" [ref=e976]:
+                  - generic [ref=e977]: MySQL
+                - cell "192.168.7.130" [ref=e978]
+                - cell "Dormant Privileged" [ref=e979]:
+                  - generic [ref=e980]: Dormant Privileged
+                - cell "100" [ref=e981]:
+                  - generic [ref=e985]: "100"
+                - cell "service" [ref=e986]
+                - cell "enabled Non-Interactive" [ref=e987]:
+                  - generic [ref=e988]:
+                    - generic [ref=e989]: enabled
+                    - generic [ref=e990]: Non-Interactive
+                - cell "—" [ref=e991]
+                - cell "25 Apr 26" [ref=e992]
+              - row "sa 192.168.101.115 MSSQL 192.168.101.115 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e993] [cursor=pointer]:
+                - cell "sa 192.168.101.115" [ref=e994]:
+                  - generic [ref=e996]: sa
+                  - generic [ref=e998]: 192.168.101.115
+                - cell "MSSQL" [ref=e999]:
+                  - generic [ref=e1000]: MSSQL
+                - cell "192.168.101.115" [ref=e1001]
+                - cell "Dormant Privileged" [ref=e1002]:
+                  - generic [ref=e1003]: Dormant Privileged
+                - cell "100" [ref=e1004]:
+                  - generic [ref=e1008]: "100"
+                - cell "service" [ref=e1009]
+                - cell "enabled Non-Interactive" [ref=e1010]:
+                  - generic [ref=e1011]:
+                    - generic [ref=e1012]: enabled
+                    - generic [ref=e1013]: Non-Interactive
+                - cell "—" [ref=e1014]
+                - cell "25 Apr 26" [ref=e1015]
+              - row "sql_admin1 192.168.101.115 MSSQL 192.168.101.115 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e1016] [cursor=pointer]:
+                - cell "sql_admin1 192.168.101.115" [ref=e1017]:
+                  - generic [ref=e1019]: sql_admin1
+                  - generic [ref=e1021]: 192.168.101.115
+                - cell "MSSQL" [ref=e1022]:
+                  - generic [ref=e1023]: MSSQL
+                - cell "192.168.101.115" [ref=e1024]
+                - cell "Dormant Privileged" [ref=e1025]:
+                  - generic [ref=e1026]: Dormant Privileged
+                - cell "100" [ref=e1027]:
+                  - generic [ref=e1031]: "100"
+                - cell "service" [ref=e1032]
+                - cell "enabled Non-Interactive" [ref=e1033]:
+                  - generic [ref=e1034]:
+                    - generic [ref=e1035]: enabled
+                    - generic [ref=e1036]: Non-Interactive
+                - cell "—" [ref=e1037]
+                - cell "25 Apr 26" [ref=e1038]
+              - row "sql_admin2 192.168.101.115 MSSQL 192.168.101.115 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e1039] [cursor=pointer]:
+                - cell "sql_admin2 192.168.101.115" [ref=e1040]:
+                  - generic [ref=e1042]: sql_admin2
+                  - generic [ref=e1044]: 192.168.101.115
+                - cell "MSSQL" [ref=e1045]:
+                  - generic [ref=e1046]: MSSQL
+                - cell "192.168.101.115" [ref=e1047]
+                - cell "Dormant Privileged" [ref=e1048]:
+                  - generic [ref=e1049]: Dormant Privileged
+                - cell "100" [ref=e1050]:
+                  - generic [ref=e1054]: "100"
+                - cell "service" [ref=e1055]
+                - cell "enabled Non-Interactive" [ref=e1056]:
+                  - generic [ref=e1057]:
+                    - generic [ref=e1058]: enabled
+                    - generic [ref=e1059]: Non-Interactive
+                - cell "—" [ref=e1060]
+                - cell "25 Apr 26" [ref=e1061]
+              - row "srv_vscode 192.168.7.130 Local RHEL 192.168.7.130 Dormant Privileged 100 service enabled Non-Interactive — 25 Apr 26" [ref=e1062] [cursor=pointer]:
+                - cell "srv_vscode 192.168.7.130 Local" [ref=e1063]:
+                  - generic [ref=e1065]: srv_vscode
+                  - generic [ref=e1066]:
+                    - generic [ref=e1067]: 192.168.7.130
+                    - generic [ref=e1068]: Local
+                - cell "RHEL" [ref=e1069]:
+                  - generic [ref=e1070]: RHEL
+                - cell "192.168.7.130" [ref=e1071]
+                - cell "Dormant Privileged" [ref=e1072]:
+                  - generic [ref=e1073]: Dormant Privileged
+                - cell "100" [ref=e1074]:
+                  - generic [ref=e1078]: "100"
+                - cell "service" [ref=e1079]
+                - cell "enabled Non-Interactive" [ref=e1080]:
+                  - generic [ref=e1081]:
+                    - generic [ref=e1082]: enabled
+                    - generic [ref=e1083]: Non-Interactive
+                - cell "—" [ref=e1084]
+                - cell "25 Apr 26" [ref=e1085]
+              - row "svc_admin_nonint 192.168.101.125 Local Windows 192.168.101.125 Dormant Privileged 100 service enabled Svc/Batch — 25 Apr 26" [ref=e1086] [cursor=pointer]:
+                - cell "svc_admin_nonint 192.168.101.125 Local" [ref=e1087]:
+                  - generic [ref=e1089]: svc_admin_nonint
+                  - generic [ref=e1090]:
+                    - generic [ref=e1091]: 192.168.101.125
+                    - generic [ref=e1092]: Local
+                - cell "Windows" [ref=e1093]:
+                  - generic [ref=e1094]: Windows
+                - cell "192.168.101.125" [ref=e1095]
+                - cell "Dormant Privileged" [ref=e1096]:
+                  - generic [ref=e1097]: Dormant Privileged
+                - cell "100" [ref=e1098]:
+                  - generic [ref=e1102]: "100"
+                - cell "service" [ref=e1103]
+                - cell "enabled Svc/Batch" [ref=e1104]:
+                  - generic [ref=e1105]:
+                    - generic [ref=e1106]: enabled
+                    - generic [ref=e1107]: Svc/Batch
+                - cell "—" [ref=e1108]
+                - cell "25 Apr 26" [ref=e1109]
+              - row "SYS 192.168.101.125 Oracle DB 192.168.101.125 Dormant Privileged 100 built_in enabled Non-Interactive — 25 Apr 26" [ref=e1110] [cursor=pointer]:
+                - cell "SYS 192.168.101.125" [ref=e1111]:
+                  - generic [ref=e1113]: SYS
+                  - generic [ref=e1115]: 192.168.101.125
+                - cell "Oracle DB" [ref=e1116]:
+                  - generic [ref=e1117]: Oracle DB
+                - cell "192.168.101.125" [ref=e1118]
+                - cell "Dormant Privileged" [ref=e1119]:
+                  - generic [ref=e1120]: Dormant Privileged
+                - cell "100" [ref=e1121]:
+                  - generic [ref=e1125]: "100"
+                - cell "built_in" [ref=e1126]
+                - cell "enabled Non-Interactive" [ref=e1127]:
+                  - generic [ref=e1128]:
+                    - generic [ref=e1129]: enabled
+                    - generic [ref=e1130]: Non-Interactive
+                - cell "—" [ref=e1131]
+                - cell "25 Apr 26" [ref=e1132]
+              - row "SYSTEM 192.168.101.125 Oracle DB 192.168.101.125 Dormant Privileged 100 built_in enabled Non-Interactive — 25 Apr 26" [ref=e1133] [cursor=pointer]:
+                - cell "SYSTEM 192.168.101.125" [ref=e1134]:
+                  - generic [ref=e1136]: SYSTEM
+                  - generic [ref=e1138]: 192.168.101.125
+                - cell "Oracle DB" [ref=e1139]:
+                  - generic [ref=e1140]: Oracle DB
+                - cell "192.168.101.125" [ref=e1141]
+                - cell "Dormant Privileged" [ref=e1142]:
+                  - generic [ref=e1143]: Dormant Privileged
+                - cell "100" [ref=e1144]:
+                  - generic [ref=e1148]: "100"
+                - cell "built_in" [ref=e1149]
+                - cell "enabled Non-Interactive" [ref=e1150]:
+                  - generic [ref=e1151]:
+                    - generic [ref=e1152]: enabled
+                    - generic [ref=e1153]: Non-Interactive
+                - cell "—" [ref=e1154]
+                - cell "25 Apr 26" [ref=e1155]
+              - row "thycotic_svc 192.168.7.133 Local Windows 192.168.7.133 Dormant Privileged 100 service enabled Interactive — 26 Apr 26" [ref=e1156] [cursor=pointer]:
+                - cell "thycotic_svc 192.168.7.133 Local" [ref=e1157]:
+                  - generic [ref=e1159]: thycotic_svc
+                  - generic [ref=e1160]:
+                    - generic [ref=e1161]: 192.168.7.133
+                    - generic [ref=e1162]: Local
+                - cell "Windows" [ref=e1163]:
+                  - generic [ref=e1164]: Windows
+                - cell "192.168.7.133" [ref=e1165]
+                - cell "Dormant Privileged" [ref=e1166]:
+                  - generic [ref=e1167]: Dormant Privileged
+                - cell "100" [ref=e1168]:
+                  - generic [ref=e1172]: "100"
+                - cell "service" [ref=e1173]
+                - cell "enabled Interactive" [ref=e1174]:
+                  - generic [ref=e1175]:
+                    - generic [ref=e1176]: enabled
+                    - generic [ref=e1177]: Interactive
+                - cell "—" [ref=e1178]
+                - cell "26 Apr 26" [ref=e1179]
+              - row "vilze 192.168.7.133 Local Windows 192.168.7.133 Dormant Privileged 100 human enabled Interactive — 26 Apr 26" [ref=e1180] [cursor=pointer]:
+                - cell "vilze 192.168.7.133 Local" [ref=e1181]:
+                  - generic [ref=e1183]: vilze
+                  - generic [ref=e1184]:
+                    - generic [ref=e1185]: 192.168.7.133
+                    - generic [ref=e1186]: Local
+                - cell "Windows" [ref=e1187]:
+                  - generic [ref=e1188]: Windows
+                - cell "192.168.7.133" [ref=e1189]
+                - cell "Dormant Privileged" [ref=e1190]:
+                  - generic [ref=e1191]: Dormant Privileged
+                - cell "100" [ref=e1192]:
+                  - generic [ref=e1196]: "100"
+                - cell "human" [ref=e1197]
+                - cell "enabled Interactive" [ref=e1198]:
+                  - generic [ref=e1199]:
+                    - generic [ref=e1200]: enabled
+                    - generic [ref=e1201]: Interactive
+                - cell "—" [ref=e1202]
+                - cell "26 Apr 26" [ref=e1203]
+              - row "weak_admin01 192.168.7.132 Local CentOS 192.168.7.132 Dormant Privileged 100 human enabled Interactive — 28 Apr 26" [ref=e1204] [cursor=pointer]:
+                - cell "weak_admin01 192.168.7.132 Local" [ref=e1205]:
+                  - generic [ref=e1207]: weak_admin01
+                  - generic [ref=e1208]:
+                    - generic [ref=e1209]: 192.168.7.132
+                    - generic [ref=e1210]: Local
+                - cell "CentOS" [ref=e1211]:
+                  - generic [ref=e1212]: CentOS
+                - cell "192.168.7.132" [ref=e1213]
+                - cell "Dormant Privileged" [ref=e1214]:
+                  - generic [ref=e1215]: Dormant Privileged
+                - cell "100" [ref=e1216]:
+                  - generic [ref=e1220]: "100"
+                - cell "human" [ref=e1221]
+                - cell "enabled Interactive" [ref=e1222]:
+                  - generic [ref=e1223]:
+                    - generic [ref=e1224]: enabled
+                    - generic [ref=e1225]: Interactive
+                - cell "—" [ref=e1226]
+                - cell "28 Apr 26" [ref=e1227]
+              - row "ws_admin01 192.168.101.125 Local Windows 192.168.101.125 Dormant Privileged 100 human enabled Review Reqd — 25 Apr 26" [ref=e1228] [cursor=pointer]:
+                - cell "ws_admin01 192.168.101.125 Local" [ref=e1229]:
+                  - generic [ref=e1231]: ws_admin01
+                  - generic [ref=e1232]:
+                    - generic [ref=e1233]: 192.168.101.125
+                    - generic [ref=e1234]: Local
+                - cell "Windows" [ref=e1235]:
+                  - generic [ref=e1236]: Windows
+                - cell "192.168.101.125" [ref=e1237]
+                - cell "Dormant Privileged" [ref=e1238]:
+                  - generic [ref=e1239]: Dormant Privileged
+                - cell "100" [ref=e1240]:
+                  - generic [ref=e1244]: "100"
+                - cell "human" [ref=e1245]
+                - cell "enabled Review Reqd" [ref=e1246]:
+                  - generic [ref=e1247]:
+                    - generic [ref=e1248]: enabled
+                    - generic [ref=e1249]: Review Reqd
+                - cell "—" [ref=e1250]
+                - cell "25 Apr 26" [ref=e1251]
+              - row "ws_admin02 192.168.101.125 Local Windows 192.168.101.125 Dormant Privileged 100 human enabled Review Reqd — 25 Apr 26" [ref=e1252] [cursor=pointer]:
+                - cell "ws_admin02 192.168.101.125 Local" [ref=e1253]:
+                  - generic [ref=e1255]: ws_admin02
+                  - generic [ref=e1256]:
+                    - generic [ref=e1257]: 192.168.101.125
+                    - generic [ref=e1258]: Local
+                - cell "Windows" [ref=e1259]:
+                  - generic [ref=e1260]: Windows
+                - cell "192.168.101.125" [ref=e1261]
+                - cell "Dormant Privileged" [ref=e1262]:
+                  - generic [ref=e1263]: Dormant Privileged
+                - cell "100" [ref=e1264]:
+                  - generic [ref=e1268]: "100"
+                - cell "human" [ref=e1269]
+                - cell "enabled Review Reqd" [ref=e1270]:
+                  - generic [ref=e1271]:
+                    - generic [ref=e1272]: enabled
+                    - generic [ref=e1273]: Review Reqd
+                - cell "—" [ref=e1274]
+                - cell "25 Apr 26" [ref=e1275]
+              - row "mongo_svc_backup@admin 192.168.7.130 MongoDB 192.168.7.130 Dormant Privileged 93 service enabled Non-Interactive — 13 May 26" [ref=e1276] [cursor=pointer]:
+                - cell "mongo_svc_backup@admin 192.168.7.130" [ref=e1277]:
+                  - generic [ref=e1279]: mongo_svc_backup@admin
+                  - generic [ref=e1281]: 192.168.7.130
+                - cell "MongoDB" [ref=e1282]:
+                  - generic [ref=e1283]: MongoDB
+                - cell "192.168.7.130" [ref=e1284]
+                - cell "Dormant Privileged" [ref=e1285]:
+                  - generic [ref=e1286]: Dormant Privileged
+                - cell "93" [ref=e1287]:
+                  - generic [ref=e1291]: "93"
+                - cell "service" [ref=e1292]
+                - cell "enabled Non-Interactive" [ref=e1293]:
+                  - generic [ref=e1294]:
+                    - generic [ref=e1295]: enabled
+                    - generic [ref=e1296]: Non-Interactive
+                - cell "—" [ref=e1297]
+                - cell "13 May 26" [ref=e1298]
+              - row "NT SERVICE\\UIFlowService 192.168.7.133 Local Windows 192.168.7.133 Sensitive Non-Admin 51 system unknown Interactive — 26 Apr 26" [ref=e1299] [cursor=pointer]:
+                - cell "NT SERVICE\\UIFlowService 192.168.7.133 Local" [ref=e1300]:
+                  - generic [ref=e1302]: NT SERVICE\UIFlowService
+                  - generic [ref=e1303]:
+                    - generic [ref=e1304]: 192.168.7.133
+                    - generic [ref=e1305]: Local
+                - cell "Windows" [ref=e1306]:
+                  - generic [ref=e1307]: Windows
+                - cell "192.168.7.133" [ref=e1308]
+                - cell "Sensitive Non-Admin" [ref=e1309]:
+                  - generic [ref=e1310]: Sensitive Non-Admin
+                - cell "51" [ref=e1311]:
+                  - generic [ref=e1315]: "51"
+                - cell "system" [ref=e1316]
+                - cell "unknown Interactive" [ref=e1317]:
+                  - generic [ref=e1318]:
+                    - generic [ref=e1319]: unknown
+                    - generic [ref=e1320]: Interactive
+                - cell "—" [ref=e1321]
+                - cell "26 Apr 26" [ref=e1322]
+              - row "NT SERVICE\\UIFlowService WINDOWS_PILOT Windows WINDOWS_PILOT Sensitive Non-Admin 51 unknown unknown — 09 May 26" [ref=e1323] [cursor=pointer]:
+                - cell "NT SERVICE\\UIFlowService WINDOWS_PILOT" [ref=e1324]:
+                  - generic [ref=e1326]: NT SERVICE\UIFlowService
+                  - generic [ref=e1328]: WINDOWS_PILOT
+                - cell "Windows" [ref=e1329]:
+                  - generic [ref=e1330]: Windows
+                - cell "WINDOWS_PILOT" [ref=e1331]
+                - cell "Sensitive Non-Admin" [ref=e1332]:
+                  - generic [ref=e1333]: Sensitive Non-Admin
+                - cell "51" [ref=e1334]:
+                  - generic [ref=e1338]: "51"
+                - cell "unknown" [ref=e1339]
+                - cell "unknown" [ref=e1340]:
+                  - generic [ref=e1342]: unknown
+                - cell "—" [ref=e1343]
+                - cell "09 May 26" [ref=e1344]
+              - row "WINDOWS_PILOT\\admin WINDOWS_PILOT Domain Windows WINDOWS_PILOT Sensitive Non-Admin 51 human enabled — 09 May 26" [ref=e1345] [cursor=pointer]:
+                - cell "WINDOWS_PILOT\\admin WINDOWS_PILOT Domain" [ref=e1346]:
+                  - generic [ref=e1348]: WINDOWS_PILOT\admin
+                  - generic [ref=e1349]:
+                    - generic [ref=e1350]: WINDOWS_PILOT
+                    - generic [ref=e1351]: Domain
+                - cell "Windows" [ref=e1352]:
+                  - generic [ref=e1353]: Windows
+                - cell "WINDOWS_PILOT" [ref=e1354]
+                - cell "Sensitive Non-Admin" [ref=e1355]:
+                  - generic [ref=e1356]: Sensitive Non-Admin
+                - cell "51" [ref=e1357]:
+                  - generic [ref=e1361]: "51"
+                - cell "human" [ref=e1362]
+                - cell "enabled" [ref=e1363]:
+                  - generic [ref=e1365]: enabled
+                - cell "—" [ref=e1366]
+                - cell "09 May 26" [ref=e1367]
+              - row "WINDOWS_PILOT\\admin WINDOWS_PILOT Local Windows WINDOWS_PILOT Sensitive Non-Admin 51 human enabled — 09 May 26" [ref=e1368] [cursor=pointer]:
+                - cell "WINDOWS_PILOT\\admin WINDOWS_PILOT Local" [ref=e1369]:
+                  - generic [ref=e1371]: WINDOWS_PILOT\admin
+                  - generic [ref=e1372]:
+                    - generic [ref=e1373]: WINDOWS_PILOT
+                    - generic [ref=e1374]: Local
+                - cell "Windows" [ref=e1375]:
+                  - generic [ref=e1376]: Windows
+                - cell "WINDOWS_PILOT" [ref=e1377]
+                - cell "Sensitive Non-Admin" [ref=e1378]:
+                  - generic [ref=e1379]: Sensitive Non-Admin
+                - cell "51" [ref=e1380]:
+                  - generic [ref=e1384]: "51"
+                - cell "human" [ref=e1385]
+                - cell "enabled" [ref=e1386]:
+                  - generic [ref=e1388]: enabled
+                - cell "—" [ref=e1389]
+                - cell "09 May 26" [ref=e1390]
+          - generic [ref=e1391]:
+            - button "← Prev" [disabled] [ref=e1392]
+            - generic [ref=e1393]: Page 1 of 6
+            - button "Next →" [ref=e1394] [cursor=pointer]
+    - button "Open AI Assistant" [ref=e171] [cursor=pointer]:
+      - img [ref=e172]
+      - generic [ref=e174]: AI
+  - generic [ref=e178]: "90"

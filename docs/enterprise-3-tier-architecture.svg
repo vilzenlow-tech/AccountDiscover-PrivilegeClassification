@@ -1,0 +1,170 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1180" viewBox="0 0 1800 1180" role="img" aria-labelledby="title desc">
+  <title id="title">Account Discovery Tool enterprise production 3-tier architecture</title>
+  <desc id="desc">Three-tier production architecture showing presentation access, application services, data integration, and remote connector agents scanning enterprise targets.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f6f8fb; }
+      .title { font: 700 38px Arial, sans-serif; fill: #101828; }
+      .subtitle { font: 400 20px Arial, sans-serif; fill: #667085; }
+      .tier-title { font: 700 24px Arial, sans-serif; fill: #253858; letter-spacing: .3px; }
+      .tier-sub { font: 400 16px Arial, sans-serif; fill: #667085; }
+      .box { fill: #ffffff; stroke: #d9e2ec; stroke-width: 2; rx: 16; }
+      .box-blue { fill: #eef6ff; stroke: #8cc4ff; stroke-width: 2; rx: 16; }
+      .box-green { fill: #eefbf4; stroke: #87d9a5; stroke-width: 2; rx: 16; }
+      .box-orange { fill: #fff7ed; stroke: #fdba74; stroke-width: 2; rx: 16; }
+      .box-red { fill: #fff1f2; stroke: #fda4af; stroke-width: 2; rx: 16; }
+      .box-purple { fill: #f5f3ff; stroke: #b7a8ff; stroke-width: 2; rx: 16; }
+      .label { font: 700 18px Arial, sans-serif; fill: #172033; }
+      .small { font: 400 14px Arial, sans-serif; fill: #52637a; }
+      .tiny { font: 400 12px Arial, sans-serif; fill: #667085; }
+      .pill { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; rx: 18; }
+      .pill-text { font: 700 13px Arial, sans-serif; fill: #334155; }
+      .line { stroke: #456179; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .dash { stroke: #8091a5; stroke-width: 2.5; stroke-dasharray: 8 7; fill: none; marker-end: url(#arrowGrey); }
+      .secure { stroke: #16803c; stroke-width: 3; fill: none; marker-end: url(#arrowGreen); }
+      .divider { stroke: #d9e2ec; stroke-width: 2; }
+      .zone { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 20; }
+      .tier { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 22; filter: url(#shadow); }
+    </style>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.08"/>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#456179"/>
+    </marker>
+    <marker id="arrowGrey" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#8091a5"/>
+    </marker>
+    <marker id="arrowGreen" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M2,2 L10,6 L2,10 Z" fill="#16803c"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1800" height="1180"/>
+
+  <text x="70" y="70" class="title">Account Discovery Tool - Enterprise Production Architecture</text>
+  <text x="70" y="104" class="subtitle">Recommended 3-tier deployment with outbound-only connector agents, HA services, vault-backed credentials, and audit-ready data flow.</text>
+
+  <rect x="60" y="145" width="1680" height="230" class="tier"/>
+  <text x="90" y="188" class="tier-title">Tier 1 - Presentation / Access</text>
+  <text x="90" y="214" class="tier-sub">User entry point, authentication, TLS termination, and browser UI</text>
+
+  <rect x="110" y="245" width="220" height="82" class="box-blue"/>
+  <text x="136" y="278" class="label">Security Analysts</text>
+  <text x="136" y="306" class="small">Browser access</text>
+
+  <rect x="405" y="245" width="220" height="82" class="box-purple"/>
+  <text x="436" y="278" class="label">Enterprise IdP</text>
+  <text x="436" y="306" class="small">OIDC / SAML + MFA</text>
+
+  <rect x="700" y="245" width="260" height="82" class="box-orange"/>
+  <text x="730" y="278" class="label">WAF / Load Balancer</text>
+  <text x="730" y="306" class="small">TLS, rate limits, routing</text>
+
+  <rect x="1040" y="245" width="240" height="82" class="box-blue"/>
+  <text x="1070" y="278" class="label">Frontend Web App</text>
+  <text x="1070" y="306" class="small">Nginx / CDN static UI</text>
+
+  <rect x="1360" y="245" width="260" height="82" class="box"/>
+  <text x="1390" y="278" class="label">Admin API Gateway</text>
+  <text x="1390" y="306" class="small">Private API routing</text>
+
+  <path d="M330 286 L405 286" class="line"/>
+  <path d="M625 286 L700 286" class="line"/>
+  <path d="M960 286 L1040 286" class="line"/>
+  <path d="M1280 286 L1360 286" class="line"/>
+
+  <rect x="60" y="425" width="1680" height="300" class="tier"/>
+  <text x="90" y="468" class="tier-title">Tier 2 - Application / Services</text>
+  <text x="90" y="494" class="tier-sub">Private application layer for APIs, scan orchestration, rule evaluation, ingestion, and observability</text>
+
+  <rect x="115" y="535" width="245" height="90" class="box-green"/>
+  <text x="145" y="568" class="label">FastAPI Backend</text>
+  <text x="145" y="596" class="small">HA replicas, RBAC, audit API</text>
+
+  <rect x="430" y="535" width="245" height="90" class="box-green"/>
+  <text x="460" y="568" class="label">Connector Agent API</text>
+  <text x="460" y="596" class="small">Register, heartbeat, jobs, results</text>
+
+  <rect x="745" y="535" width="225" height="90" class="box-green"/>
+  <text x="775" y="568" class="label">Celery Workers</text>
+  <text x="775" y="596" class="small">Ingestion + dispatch jobs</text>
+
+  <rect x="1035" y="535" width="225" height="90" class="box-green"/>
+  <text x="1065" y="568" class="label">Rule Engine</text>
+  <text x="1065" y="596" class="small">Classify privileges + risk</text>
+
+  <rect x="1325" y="535" width="230" height="90" class="box-green"/>
+  <text x="1355" y="568" class="label">Scheduler</text>
+  <text x="1355" y="596" class="small">Celery Beat / recurring scans</text>
+
+  <rect x="1590" y="535" width="115" height="90" class="box-green"/>
+  <text x="1613" y="568" class="label">SIEM</text>
+  <text x="1608" y="596" class="small">Logs</text>
+
+  <path d="M1490 327 L1490 430 L238 430 L238 535" class="line"/>
+  <path d="M360 580 L430 580" class="line"/>
+  <path d="M675 580 L745 580" class="line"/>
+  <path d="M970 580 L1035 580" class="line"/>
+  <path d="M1325 580 L1260 580" class="dash"/>
+  <path d="M1555 580 L1590 580" class="dash"/>
+
+  <rect x="60" y="775" width="1070" height="295" class="tier"/>
+  <text x="90" y="818" class="tier-title">Tier 3 - Data / Integration</text>
+  <text x="90" y="844" class="tier-sub">Persistent stores, secrets, backups, and enterprise integrations</text>
+
+  <rect x="110" y="895" width="230" height="92" class="box-red"/>
+  <text x="140" y="929" class="label">PostgreSQL HA</text>
+  <text x="140" y="957" class="small">Assets, accounts, findings</text>
+
+  <rect x="400" y="895" width="210" height="92" class="box-red"/>
+  <text x="430" y="929" class="label">Redis HA</text>
+  <text x="430" y="957" class="small">Broker + cache</text>
+
+  <rect x="670" y="895" width="220" height="92" class="box-red"/>
+  <text x="700" y="929" class="label">Enterprise Vault</text>
+  <text x="700" y="957" class="small">Credential references</text>
+
+  <rect x="945" y="895" width="140" height="92" class="box-red"/>
+  <text x="975" y="929" class="label">Storage</text>
+  <text x="975" y="957" class="small">Exports, logs</text>
+
+  <path d="M238 625 L238 895" class="line"/>
+  <path d="M858 625 L858 758 L225 758 L225 895" class="line"/>
+  <path d="M1325 625 L1325 752 L505 752 L505 895" class="line"/>
+  <path d="M238 625 L238 735 L780 735 L780 895" class="secure"/>
+  <path d="M238 625 L238 715 L1015 715 L1015 895" class="dash"/>
+
+  <rect x="1180" y="775" width="560" height="295" class="tier"/>
+  <text x="1210" y="818" class="tier-title">Remote Enterprise Zones / Sites</text>
+  <text x="1210" y="844" class="tier-sub">Agents sit near targets and connect outbound only</text>
+
+  <rect x="1225" y="890" width="220" height="95" class="box-orange"/>
+  <text x="1255" y="925" class="label">Connector Agent</text>
+  <text x="1255" y="953" class="small">RHEL/Linux service</text>
+  <text x="1255" y="975" class="tiny">Outbound HTTPS 443</text>
+
+  <rect x="1500" y="875" width="185" height="55" class="box"/>
+  <text x="1530" y="909" class="label">Windows</text>
+
+  <rect x="1500" y="945" width="185" height="55" class="box"/>
+  <text x="1530" y="979" class="label">Linux / Unix</text>
+
+  <rect x="1500" y="1015" width="185" height="55" class="box"/>
+  <text x="1530" y="1049" class="label">Databases</text>
+
+  <path d="M1225 936 L1035 936" class="secure"/>
+  <path d="M1445 915 L1500 903" class="line"/>
+  <path d="M1445 940 L1500 970" class="line"/>
+  <path d="M1445 965 L1500 1040" class="line"/>
+
+  <rect x="1225" y="650" width="410" height="50" class="pill"/>
+  <text x="1250" y="681" class="pill-text">No inbound firewall rule from console to remote sites</text>
+  <path d="M1340 650 L1340 625 L545 625" class="secure"/>
+
+  <line x1="60" y1="393" x2="1740" y2="393" class="divider"/>
+  <line x1="60" y1="745" x2="1740" y2="745" class="divider"/>
+
+  <rect x="72" y="1100" width="1656" height="48" class="pill"/>
+  <text x="98" y="1131" class="pill-text">Production controls: SSO/MFA, WAF, TLS 1.2+, private app subnet, mTLS/enterprise CA for agents, vault-backed credentials, encrypted DB, backups/PITR, centralized audit logs, SIEM alerts, token rotation.</text>
+</svg>

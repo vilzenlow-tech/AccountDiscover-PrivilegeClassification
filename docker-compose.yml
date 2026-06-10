@@ -1,0 +1,122 @@
+version: "3.9"
+
+# ---------------------------------------------------------------------------
+# Top-level secrets  (Docker secrets are mounted at /run/secrets/<name>)
+# ---------------------------------------------------------------------------
+secrets:
+  vault_fernet_key:
+    file: ./secrets/vault_fernet_key
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: adpct
+      POSTGRES_PASSWORD: adpct
+      POSTGRES_DB: adpct
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Do NOT expose port 5432 to the host in production.
+    # Uncomment ONLY for local development: ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adpct"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7
+    # Do NOT expose port 6379 to the host in production.
+    # Uncomment ONLY for local development: ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    secrets:
+      - vault_fernet_key
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Backend is internal only — accessed through nginx on port 443.
+    # Do NOT expose port 8000 to the host in production.
+    # Uncomment ONLY for local development: ports: ["8000:8000"]
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+    volumes:
+      - ./backend:/app
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    secrets:
+      - vault_fernet_key
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=INFO"]
+    volumes:
+      - ./backend:/app
+
+  beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["celery", "-A", "app.workers.celery_app", "beat", "--loglevel=INFO"]
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - backend
+    # Frontend is accessed through nginx; expose 5173 only for direct dev access
+    ports:
+      - "5173:5173"
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  # ---------------------------------------------------------------------------
+  # nginx — TLS termination + reverse proxy
+  # ---------------------------------------------------------------------------
+  nginx:
+    image: nginx:1.27-alpine
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - "80:80"       # HTTP → redirect to HTTPS
+      - "443:443"     # HTTPS (TLS terminated here)
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    restart: unless-stopped
+
+volumes:
+  pgdata:
