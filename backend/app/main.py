@@ -70,9 +70,20 @@ def _enforce_secret_key() -> None:
             )
 
 
+def _enforce_collector_mode(settings=None) -> None:
+    """Mock collectors fabricate accounts — never allow them outside dev (G-04)."""
+    s = settings or get_settings()
+    if s.env in ("staging", "prod") and s.collector_mode == "mock":
+        raise RuntimeError(
+            "COLLECTOR_MODE=mock is not permitted when APP_ENV=staging/prod. "
+            "Mock mode fabricates discovery data; set COLLECTOR_MODE=live."
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _enforce_secret_key()
+    _enforce_collector_mode()
     log.info("adpct.startup", env=settings.env)
     scheduler = build_scheduler()
     scheduler.start()

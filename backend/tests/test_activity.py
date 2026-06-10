@@ -65,3 +65,25 @@ def test_risk_matrix_never_logged_in_by_privilege():
     high, _ = housekeeping_risk(ActivityStatus.never_logged_in, PrivilegeClass.full_admin)
     med, _ = housekeeping_risk(ActivityStatus.never_logged_in, PrivilegeClass.non_privileged)
     assert (high, med) == ("high", "medium")
+
+
+def test_mock_mode_rejected_in_prod():
+    import pytest
+    from app.main import _enforce_collector_mode
+
+    class _S:
+        env = "prod"
+        collector_mode = "mock"
+
+    with pytest.raises(RuntimeError, match="COLLECTOR_MODE=mock"):
+        _enforce_collector_mode(_S())
+
+
+def test_mock_mode_allowed_in_dev():
+    from app.main import _enforce_collector_mode
+
+    class _S:
+        env = "dev"
+        collector_mode = "mock"
+
+    _enforce_collector_mode(_S())  # must not raise
