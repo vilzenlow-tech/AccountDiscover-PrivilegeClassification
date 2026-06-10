@@ -236,3 +236,26 @@ def test_health(client):
     r = client.get("/health")
     assert r.status_code == 200
     assert r.json()["status"] == "ok"
+
+
+class TestHousekeepingExport:
+    def test_housekeeping_csv_requires_auth(self, client):
+        r = client.get("/api/v1/exports/housekeeping/csv")
+        assert r.status_code == 401
+
+    def test_housekeeping_csv_returns_csv(self, client, admin_token):
+        r = client.get(
+            "/api/v1/exports/housekeeping/csv",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert r.status_code == 200
+        assert "text/csv" in r.headers["content-type"]
+        # Header row is always written, even with zero matching accounts.
+        assert "risk_rating" in r.text.splitlines()[0]
+
+    def test_accounts_filter_by_activity_status(self, client, admin_token):
+        r = client.get(
+            "/api/v1/accounts?activity_status=inactive_90d",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert r.status_code == 200

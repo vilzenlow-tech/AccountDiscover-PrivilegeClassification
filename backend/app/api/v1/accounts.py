@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import uuid
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models.account import Account
-from app.models.enums import PrivilegeClass
+from app.models.enums import ActivityStatus, PrivilegeClass
 from app.schemas.account import AccountDetailOut, AccountFilter, AccountOut
 from app.schemas.common import Page
 from app.security import Principal, get_current_principal
@@ -40,6 +41,8 @@ def list_accounts(
     only_privileged: bool = False,
     only_shared: bool = False,
     search: str | None = None,
+    activity_status: ActivityStatus | None = None,
+    inactive_days: int | None = None,
     limit: int = 50,
     offset: int = 0,
     db: Session = Depends(get_db),
@@ -56,6 +59,11 @@ def list_accounts(
         q = q.filter(Account.privilege_classification == classification)
     if enabled_status:
         q = q.filter(Account.enabled_status == enabled_status)
+    if activity_status:
+        q = q.filter(Account.activity_status == activity_status)
+    if inactive_days and inactive_days > 0:
+        cutoff = datetime.now(UTC) - timedelta(days=inactive_days)
+        q = q.filter(Account.last_login.is_not(None), Account.last_login < cutoff)
     if interactive_status:
         q = q.filter(Account.interactive_status == interactive_status)
     if source_type:
