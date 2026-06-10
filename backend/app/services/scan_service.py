@@ -357,6 +357,7 @@ def _upsert_accounts(
     relationship cache (bulk DELETE does not invalidate the in-memory list).
     """
     from app.config import get_settings
+    _collector_mode = get_settings().collector_mode
     rows: list[Account] = []
     nas: list[NormalizedAccount] = []
     now = datetime.now(UTC)
@@ -397,7 +398,7 @@ def _upsert_accounts(
         acc.account_expires_at = na.account_expires_at
         acc.platform_created_at = na.platform_created_at
         acc.never_logged_in = na.never_logged_in
-        acc.collection_mode = get_settings().collector_mode
+        acc.collection_mode = _collector_mode
         acc.owner = na.owner
         acc.evidence_summary = na.evidence_summary
 
