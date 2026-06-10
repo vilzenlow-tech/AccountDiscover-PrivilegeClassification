@@ -1373,6 +1373,10 @@ try {
             last_logon = _windate(u.get("LastLogon")) or (
                 last_login_days_ago(f"{hostname}:{name}") if is_mock else None
             )
+            pwd_last_set = _windate(u.get("PasswordLastSet"))
+            # Get-LocalUser returns LastLogon=$null for accounts that have never
+            # logged on to the local SAM — positive "never" evidence in live mode.
+            never_logged = (u.get("LastLogon") in (None, "")) if not is_mock else None
             description: str = u.get("Description") or ""
 
             info = _classify_principal(name, sid, "User", "Local", hostname)
@@ -1401,6 +1405,8 @@ try {
                 interactive_status=InteractiveStatus.unknown,
                 last_login=last_logon,
                 last_login_source="Get-LocalUser.LastLogon",
+                password_last_changed=pwd_last_set,
+                never_logged_in=never_logged,
                 is_shared=(name in _BUILTIN_LOCAL_NAMES),
                 password_never_expires=pwd_never,
                 evidence_summary={
