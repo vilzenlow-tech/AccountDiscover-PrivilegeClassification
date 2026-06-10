@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     refresh_token_ttl_min: int = Field(default=720, alias="APP_REFRESH_TOKEN_TTL_MIN")
     cors_origins: str = Field(default="http://localhost:5173", alias="APP_CORS_ORIGINS")
     rate_limit_login_per_min: int = Field(default=5, alias="APP_RATE_LIMIT_LOGIN_PER_MIN")
+    # Inactivity tiering thresholds (days). Governance defaults: 30 warn / 90 critical.
+    inactivity_warn_days: int = Field(default=30, alias="INACTIVITY_WARN_DAYS")
+    inactivity_critical_days: int = Field(default=90, alias="INACTIVITY_CRITICAL_DAYS")
 
     database_url: str = Field(
         default="postgresql+psycopg://adpct:adpct@postgres:5432/adpct",
