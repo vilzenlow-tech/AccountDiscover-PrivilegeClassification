@@ -183,21 +183,22 @@ class OracleDBCollector(BaseCollector):
 
             cur.execute("""
                 SELECT username, account_status, created, last_login, profile,
-                       oracle_maintained, common
+                       oracle_maintained, common, expiry_date, lock_date
                 FROM dba_users
                 ORDER BY username
             """)
-            users = [
-                {
+            users = []
+            for row in cur.fetchall():
+                users.append({
                     "username": row[0], "status": row[1],
-                    "created": str(row[2]) if row[2] else None,
-                    "last_login": str(row[3]) if row[3] else None,
+                    "created": row[2],            # datetime | None (kept raw)
+                    "last_login": row[3],         # datetime | None (kept raw)
                     "profile": row[4],
                     "oracle_maintained": row[5],
                     "common": row[6],
-                }
-                for row in cur.fetchall()
-            ]
+                    "expiry_date": row[7],        # password expiry datetime | None
+                    "lock_date": row[8],
+                })
 
             cur.execute("""
                 SELECT grantee, privilege, admin_option
@@ -217,11 +218,23 @@ class OracleDBCollector(BaseCollector):
             for grantee, role, admin, default in cur.fetchall():
                 role_privs.setdefault(grantee, []).append({"role": role, "admin_option": admin == "YES"})
 
+            cur.execute("""
+                SELECT profile, limit
+                FROM dba_profiles
+                WHERE resource_name = 'PASSWORD_LIFE_TIME'
+            """)
+            profile_lifetime = {row[0]: row[1] for row in cur.fetchall()}
+
         finally:
             conn.close()
 
         probes_out = [
-            probe("dba_users",      "SELECT * FROM dba_users",      users),
+            probe("dba_users", "SELECT * FROM dba_users",
+                  [{**u, "created": str(u["created"]) if u["created"] else None,
+                    "last_login": str(u["last_login"]) if u["last_login"] else None,
+                    "expiry_date": str(u["expiry_date"]) if u["expiry_date"] else None,
+                    "lock_date": str(u["lock_date"]) if u["lock_date"] else None}
+                   for u in users]),
             probe("dba_sys_privs",  "SELECT * FROM dba_sys_privs",  sys_privs),
             probe("dba_role_privs", "SELECT * FROM dba_role_privs", role_privs),
         ]
@@ -229,7 +242,15 @@ class OracleDBCollector(BaseCollector):
         accounts: list[NormalizedAccount] = []
         for u in users:
             name = u["username"]
-            enabled = EnabledStatus.enabled if "OPEN" in u.get("status", "") else EnabledStatus.locked
+            raw_status = (u.get("status") or "").upper()
+            if "LOCKED" in raw_status:
+                enabled = EnabledStatus.locked          # LOCKED, LOCKED(TIMED), EXPIRED & LOCKED
+            elif "EXPIRED" in raw_status:
+                enabled = EnabledStatus.expired         # EXPIRED, EXPIRED(GRACE)
+            elif raw_status == "OPEN":
+                enabled = EnabledStatus.enabled
+            else:
+                enabled = EnabledStatus.unknown
             is_oracle_maintained = u.get("oracle_maintained") == "Y"
             principal_type = (
                 PrincipalType.built_in if (is_oracle_maintained or name in _ORACLE_BUILTIN)
@@ -252,15 +273,27 @@ class OracleDBCollector(BaseCollector):
                     attributes={"admin_option": entry["admin_option"], "broad": entry["role"] in _DBA_PRIVS},
                 ))
 
+            from datetime import UTC as _UTC
+
+            def _aware(dt):
+                return dt.replace(tzinfo=_UTC) if dt is not None and dt.tzinfo is None else dt
+
+            lifetime = profile_lifetime.get(u.get("profile"), "")
             accounts.append(NormalizedAccount(
                 account_name=name, source_type="oracle_db",
                 principal_type=principal_type, auth_source=AuthSource.db_native,
                 enabled_status=enabled, interactive_status=InteractiveStatus.non_interactive,
-                last_login=None, last_login_source="DBA_USERS.LAST_LOGIN",
-                is_shared=False, password_never_expires=False,
+                last_login=_aware(u.get("last_login")),
+                last_login_source="DBA_USERS.LAST_LOGIN",
+                never_logged_in=(u.get("last_login") is None),
+                password_expires_at=_aware(u.get("expiry_date")),
+                platform_created_at=_aware(u.get("created")),
+                is_shared=False,
+                password_never_expires=(str(lifetime).upper() == "UNLIMITED"),
                 evidence_summary={
                     "status": u.get("status"), "profile": u.get("profile"),
                     "common": u.get("common"), "oracle_maintained": u.get("oracle_maintained"),
+                    "profile_password_life_time": str(lifetime) if lifetime else None,
                 },
                 entitlements=ents,
             ))
