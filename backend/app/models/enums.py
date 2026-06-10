@@ -59,7 +59,21 @@ class EnabledStatus(str, enum.Enum):
     enabled = "enabled"
     disabled = "disabled"
     locked = "locked"
+    expired = "expired"
     unknown = "unknown"
+
+
+class ActivityStatus(str, enum.Enum):
+    """Inactivity tier computed from last-login evidence.
+
+    'no_evidence' (collection could not determine logins) is deliberately
+    distinct from 'never_logged_in' (positive evidence of zero logins).
+    """
+    active = "active"
+    inactive_30d = "inactive_30d"      # last login older than warn threshold
+    inactive_90d = "inactive_90d"      # last login older than critical threshold
+    never_logged_in = "never_logged_in"
+    no_evidence = "no_evidence"
 
 
 class InteractiveStatus(str, enum.Enum):

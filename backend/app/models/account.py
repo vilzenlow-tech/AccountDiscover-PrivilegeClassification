@@ -21,6 +21,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.db import Base
 from app.models._base import created_at, updated_at, uuid_pk
 from app.models.enums import (
+    ActivityStatus,
     AuthSource,
     EnabledStatus,
     InteractiveStatus,
@@ -115,6 +116,22 @@ class Account(Base):
 
     is_shared: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     password_never_expires: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+
+    # ── Password / account aging evidence (review §4.3) ───────────────────────
+    password_last_changed: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    password_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    account_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    platform_created_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # True = positive evidence of zero logins; None = no evidence either way.
+    never_logged_in: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    # 'mock' | 'live' — provenance stamp (review G-04).
+    collection_mode: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    activity_status: Mapped[ActivityStatus] = mapped_column(
+        PgEnum(ActivityStatus, name="activity_status_enum", create_type=False),
+        nullable=False,
+        default=ActivityStatus.no_evidence,
+        index=True,
+    )
 
     owner: Mapped[str | None] = mapped_column(String(255), nullable=True)
     evidence_summary: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
