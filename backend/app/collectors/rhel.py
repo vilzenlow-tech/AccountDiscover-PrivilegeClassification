@@ -194,13 +194,13 @@ class RHELCollector(BaseCollector):
                         )
                     )
 
-            last_login = None
             last_text = lastlog_raw.get(name, "")
-            if "Never" not in last_text and last_text:
-                last_login = last_login_days_ago(seed=f"{host}:{name}", min_days=1, max_days=400)
-            else:
-                # Occasionally leave last_login None to simulate missing data.
-                last_login = None
+            never_logged = "Never" in last_text
+            last_login = (
+                last_login_days_ago(seed=f"{host}:{name}", min_days=1, max_days=400)
+                if last_text and not never_logged
+                else None
+            )
 
             accounts.append(
                 NormalizedAccount(
@@ -212,6 +212,7 @@ class RHELCollector(BaseCollector):
                     interactive_status=interactive,
                     last_login=last_login,
                     last_login_source="lastlog",
+                    never_logged_in=never_logged,
                     is_shared=(name == "legacy"),
                     password_never_expires=shadow_never_expires.get(name, False),
                     evidence_summary={
@@ -252,7 +253,11 @@ class RHELCollector(BaseCollector):
             observed_fp = ssh.observed_fingerprint
             passwd_raw = [l for l in ssh.run("getent passwd").splitlines() if l.strip()]
             group_raw = [l for l in ssh.run("getent group").splitlines() if l.strip()]
-            shadow_raw = ssh.run("awk -F: '{print $1,$2,$5}' /etc/shadow 2>/dev/null || true").splitlines()
+            # Fields: 1 user, 2 pw, 3 lastchg, 5 max, 8 expire. Colon-joined so
+            # empty fields survive (space-joined awk output collapses them).
+            shadow_raw = ssh.run(
+                "awk -F: 'BEGIN{OFS=\":\"}{print $1,$2,$3,$5,$8}' /etc/shadow 2>/dev/null || true"
+            ).splitlines()
             sudoers_main = ssh.run("cat /etc/sudoers 2>/dev/null || true")
             sudoers_d_files = [f.strip() for f in ssh.run("ls /etc/sudoers.d/ 2>/dev/null || true").splitlines() if f.strip()]
             sudoers_d: dict[str, list[str]] = {}
@@ -276,44 +281,35 @@ class RHELCollector(BaseCollector):
                     "/etc/pam.d/system-auth /etc/pam.d/password-auth 2>/dev/null || true"
                 )
 
-        shadow_status: dict[str, str] = {}
-        shadow_never_expires: dict[str, bool] = {}
+        from app.collectors._unix_parsers import ShadowEntry, parse_lastlog, parse_shadow_line
+
+        shadow_entries: dict[str, ShadowEntry] = {}
         for line in shadow_raw:
-            parts = line.split()
-            if len(parts) < 2:
-                continue
-            user, pw = parts[0], parts[1]
-            shadow_status[user] = "LK" if (pw.startswith("!") or pw == "*") else ("NP" if pw in ("!!", "") else "PS")
-            if len(parts) >= 3:
-                max_days_str = parts[2].strip()
-                shadow_never_expires[user] = (
-                    max_days_str in ("", "99999", "0") or max_days_str.startswith("-")
-                )
-            else:
-                shadow_never_expires[user] = False
+            entry = parse_shadow_line(line)
+            if entry:
+                shadow_entries[entry.user] = entry
 
         sudoers_parsed: dict[str, list[str]] = {
             "/etc/sudoers": [l for l in sudoers_main.splitlines() if l.strip() and not l.startswith("#")]
         }
         sudoers_parsed.update(sudoers_d)
 
-        lastlog_map: dict[str, str] = {}
-        for line in lastlog_text.splitlines()[1:]:
-            if not line.strip():
-                continue
-            parts = line.split()
-            username = parts[0]
-            if "Never" in line or "**Never" in line:
-                lastlog_map[username] = "Never logged in"
-            elif len(parts) >= 5:
-                lastlog_map[username] = line
+        lastlog_map = parse_lastlog(lastlog_text)
 
         probes_out = [
             probe("getent_passwd", "getent passwd", passwd_raw),
             probe("getent_group", "getent group", group_raw),
-            probe("shadow_status", "awk -F: '{print $1,$2}' /etc/shadow", shadow_status),
+            probe(
+                "shadow_status",
+                "awk -F: 'BEGIN{OFS=\":\"}{print $1,$2,$3,$5,$8}' /etc/shadow",
+                {u: e.password_status for u, e in shadow_entries.items()},
+            ),
             probe("sudoers", "cat /etc/sudoers + sudoers.d", sudoers_parsed),
-            probe("lastlog", "lastlog", lastlog_map),
+            probe(
+                "lastlog", "lastlog",
+                {u: (dt.isoformat() if dt else ("never" if never else "unknown"))
+                 for u, (dt, never) in lastlog_map.items()},
+            ),
         ]
 
         accounts: list[NormalizedAccount] = []
@@ -324,7 +320,19 @@ class RHELCollector(BaseCollector):
             name, _, uid, gid, gecos, home, shell = parts[:7]
             uid_i, gid_i = int(uid), int(gid)
             principal_type = self._classify_principal(name, shell, uid_i)
-            enabled = EnabledStatus.enabled if shadow_status.get(name, "PS") == "PS" else EnabledStatus.locked
+            from datetime import UTC as _UTC, datetime as _dt, timedelta as _td
+
+            entry = shadow_entries.get(name)
+            if entry is None:
+                enabled = EnabledStatus.unknown
+            elif entry.password_status == "locked":
+                enabled = EnabledStatus.locked
+            elif entry.password_status == "disabled":
+                enabled = EnabledStatus.disabled
+            elif entry.account_expires_at and entry.account_expires_at < _dt.now(_UTC):
+                enabled = EnabledStatus.expired
+            else:
+                enabled = EnabledStatus.enabled
             interactive = InteractiveStatus.interactive if shell in ("/bin/bash", "/bin/sh", "/bin/zsh") else InteractiveStatus.non_interactive
             ents: list[NormalizedEntitlement] = []
             if uid_i == 0:
@@ -355,19 +363,27 @@ class RHELCollector(BaseCollector):
                     if is_broad:
                         sudo_broad = True
                     ents.append(NormalizedEntitlement(kind="sudo_rule", name=rule.strip(), scope="ALL" if " ALL" in rule else "limited", source=path, inherited=via != "direct", via=via, attributes={"broad": is_broad, "nopasswd": "NOPASSWD" in rule}))
-            last_login = None
-            if lastlog_map.get(name) and "Never" not in lastlog_map.get(name, ""):
-                from app.collectors._mockutil import last_login_days_ago
-                last_login = last_login_days_ago(seed=f"{target.hostname}:{name}", min_days=1, max_days=400)
+            last_login, never_logged = lastlog_map.get(name, (None, False)) if lastlog_map else (None, None)
+            pwd_changed = entry.password_last_changed if entry else None
+            pwd_expires = (
+                pwd_changed + _td(days=entry.max_days)
+                if entry and pwd_changed and entry.max_days and not entry.never_expires
+                else None
+            )
             accounts.append(NormalizedAccount(
                 account_name=name, source_type="linux_local", principal_type=principal_type,
                 auth_source=AuthSource.local, enabled_status=enabled, interactive_status=interactive,
-                last_login=last_login, last_login_source="lastlog", is_shared=False,
-                password_never_expires=shadow_never_expires.get(name, False),
+                last_login=last_login, last_login_source="lastlog",
+                never_logged_in=never_logged,
+                password_last_changed=pwd_changed,
+                password_expires_at=pwd_expires,
+                account_expires_at=entry.account_expires_at if entry else None,
+                is_shared=False,
+                password_never_expires=entry.never_expires if entry else False,
                 evidence_summary={
                     "uid": uid_i, "gid": gid_i, "shell": shell, "home": home,
-                    "shadow_status": shadow_status.get(name, "??"),
-                    "shadow_max_days_never_expires": shadow_never_expires.get(name),
+                    "shadow_status": entry.password_status if entry else "unknown",
+                    "shadow_max_days_never_expires": entry.never_expires if entry else None,
                     "sudo_broad": sudo_broad,
                 },
                 entitlements=ents,
