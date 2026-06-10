@@ -70,7 +70,22 @@ def process_due_schedules() -> None:
         db.commit()
 
 
+def recompute_activity_statuses() -> None:
+    """Nightly re-tiering: accounts age into 30/90-day buckets between scans."""
+    from app.services.activity import recompute_all_activity
+
+    with SessionLocal() as db:
+        recompute_all_activity(db)
+
+
 def build_scheduler() -> BackgroundScheduler:
     scheduler = BackgroundScheduler(timezone=SCHEDULE_TIMEZONE)
     scheduler.add_job(process_due_schedules, "interval", seconds=30, id="scheduled-scan-dispatcher", max_instances=1, replace_existing=True)
+    scheduler.add_job(
+        recompute_activity_statuses,
+        CronTrigger(hour=1, minute=15, timezone=SCHEDULE_TIMEZONE),
+        id="activity-status-recompute",
+        max_instances=1,
+        replace_existing=True,
+    )
     return scheduler

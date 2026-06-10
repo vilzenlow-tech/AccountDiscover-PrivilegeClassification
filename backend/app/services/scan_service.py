@@ -31,6 +31,7 @@ from app.models.job import DiscoveryJob, DiscoveryJobTarget
 from app.models.notification import Notification
 from app.models.rule import ClassificationRule
 from app.rules_engine.engine import RuleEvaluationResult, RulesEngine, RuleSpec
+from app.services.activity import compute_activity_status
 
 log = structlog.get_logger("adpct.scan")
 
@@ -399,6 +400,7 @@ def _upsert_accounts(
         acc.platform_created_at = na.platform_created_at
         acc.never_logged_in = na.never_logged_in
         acc.collection_mode = _collector_mode
+        acc.activity_status = compute_activity_status(na.last_login, na.never_logged_in)
         acc.owner = na.owner
         acc.evidence_summary = na.evidence_summary
 
