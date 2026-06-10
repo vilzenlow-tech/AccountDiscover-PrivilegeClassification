@@ -93,6 +93,11 @@ class NormalizedAccount:
     last_login_source: str | None = None
     is_shared: bool = False
     password_never_expires: bool = False
+    password_last_changed: datetime | None = None
+    password_expires_at: datetime | None = None
+    account_expires_at: datetime | None = None
+    platform_created_at: datetime | None = None
+    never_logged_in: bool | None = None   # True = positive "never" evidence
     owner: str | None = None
     evidence_summary: dict = field(default_factory=dict)
     entitlements: list[NormalizedEntitlement] = field(default_factory=list)

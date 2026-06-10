@@ -7,6 +7,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from app.models.enums import (
+    ActivityStatus,
     AuthSource,
     EnabledStatus,
     InteractiveStatus,
@@ -63,6 +64,15 @@ class AccountOut(BaseModel):
     allows_network_logon: bool | None = None
     review_required_reason: str | None = None
     principal_source: str | None = None
+
+    # Password aging and provenance fields
+    password_last_changed: datetime | None = None
+    password_expires_at: datetime | None = None
+    account_expires_at: datetime | None = None
+    platform_created_at: datetime | None = None
+    never_logged_in: bool | None = None
+    activity_status: ActivityStatus = ActivityStatus.no_evidence
+    collection_mode: str | None = None
 
     model_config = {"from_attributes": True}
 

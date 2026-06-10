@@ -356,6 +356,7 @@ def _upsert_accounts(
     entitlements directly rather than reading the stale SQLAlchemy
     relationship cache (bulk DELETE does not invalidate the in-memory list).
     """
+    from app.config import get_settings
     rows: list[Account] = []
     nas: list[NormalizedAccount] = []
     now = datetime.now(UTC)
@@ -391,6 +392,12 @@ def _upsert_accounts(
         acc.last_login_source = na.last_login_source
         acc.is_shared = na.is_shared
         acc.password_never_expires = na.password_never_expires
+        acc.password_last_changed = na.password_last_changed
+        acc.password_expires_at = na.password_expires_at
+        acc.account_expires_at = na.account_expires_at
+        acc.platform_created_at = na.platform_created_at
+        acc.never_logged_in = na.never_logged_in
+        acc.collection_mode = get_settings().collector_mode
         acc.owner = na.owner
         acc.evidence_summary = na.evidence_summary
 
