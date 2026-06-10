@@ -125,7 +125,7 @@ class Account(Base):
     # True = positive evidence of zero logins; None = no evidence either way.
     never_logged_in: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     # 'mock' | 'live' — provenance stamp (review G-04).
-    collection_mode: Mapped[str | None] = mapped_column(String(8), nullable=True)
+    collection_mode: Mapped[str | None] = mapped_column(String(32), nullable=True)
     activity_status: Mapped[ActivityStatus] = mapped_column(
         PgEnum(ActivityStatus, name="activity_status_enum", create_type=False),
         nullable=False,

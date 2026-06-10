@@ -27,7 +27,7 @@ def upgrade() -> None:
     op.add_column("accounts_normalized", sa.Column("account_expires_at", sa.DateTime(timezone=True), nullable=True))
     op.add_column("accounts_normalized", sa.Column("platform_created_at", sa.DateTime(timezone=True), nullable=True))
     op.add_column("accounts_normalized", sa.Column("never_logged_in", sa.Boolean(), nullable=True))
-    op.add_column("accounts_normalized", sa.Column("collection_mode", sa.String(8), nullable=True))
+    op.add_column("accounts_normalized", sa.Column("collection_mode", sa.String(32), nullable=True))
     op.add_column(
         "accounts_normalized",
         sa.Column(
@@ -49,3 +49,5 @@ def downgrade() -> None:
         op.drop_column("accounts_normalized", col)
     op.execute("DROP TYPE activity_status_enum")
     # The 'expired' value stays on enabled_status_enum — Postgres cannot drop enum values.
+    # WARNING: Before running this downgrade, update any rows with enabled_status='expired'
+    # to another value (e.g. 'unknown') — otherwise SQLAlchemy raises ValueError on read.
