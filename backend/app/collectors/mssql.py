@@ -176,17 +176,22 @@ class MSSQLCollector(BaseCollector):
         try:
             cur = conn.cursor(as_dict=True)
 
-            # ── Server principals with SQL-login policy flags (LEFT JOIN) ─────
-            # last_login_date: available since SQL Server 2005; NULL = never logged in.
-            # is_policy_checked / is_expiration_checked: only populated for SQL logins
-            # (type 'S'); Windows logins inherit the domain policy → COALESCE to 1.
+            # sys.server_principals has NO last-login column. Sources used instead:
+            #  - LOGINPROPERTY(name,'PasswordLastSetTime'): SQL logins only (NULL for Windows logins)
+            #  - sys.dm_exec_sessions: most recent session login_time — ONLY since the
+            #    last instance restart (requires VIEW SERVER STATE). Recorded in
+            #    last_login_source so reviewers know the precision window.
             cur.execute(
                 "SELECT sp.name, sp.type_desc, sp.is_disabled, sp.default_database_name, "
-                "sp.last_login_date, "
+                "CONVERT(datetime2, LOGINPROPERTY(sp.name, 'PasswordLastSetTime')) AS password_last_set, "
+                "s.last_session_login, "
                 "COALESCE(sl.is_policy_checked,     1) AS is_policy_checked, "
                 "COALESCE(sl.is_expiration_checked, 1) AS is_expiration_checked "
                 "FROM sys.server_principals sp "
                 "LEFT JOIN sys.sql_logins sl ON sl.principal_id = sp.principal_id "
+                "LEFT JOIN (SELECT login_name, MAX(login_time) AS last_session_login "
+                "           FROM sys.dm_exec_sessions GROUP BY login_name) s "
+                "       ON s.login_name = sp.name "
                 "WHERE sp.type IN ('S','U','G') AND sp.name NOT LIKE '##%'"
             )
             logins = list(cur.fetchall())
@@ -232,14 +237,15 @@ class MSSQLCollector(BaseCollector):
                 for r in roles
             ]
 
-            # last_login_date comes back as a naive datetime from pymssql — make UTC-aware
-            raw_dt = login.get("last_login_date")
+            raw_dt = login.get("last_session_login")
             last_login = None
             if raw_dt is not None:
-                try:
-                    last_login = raw_dt.replace(tzinfo=_tz.utc) if raw_dt.tzinfo is None else raw_dt
-                except (AttributeError, TypeError):
-                    last_login = None
+                last_login = raw_dt.replace(tzinfo=_tz.utc) if raw_dt.tzinfo is None else raw_dt
+
+            raw_pls = login.get("password_last_set")
+            pwd_last_set = None
+            if raw_pls is not None:
+                pwd_last_set = raw_pls.replace(tzinfo=_tz.utc) if raw_pls.tzinfo is None else raw_pls
 
             # password_never_expires: CHECK_EXPIRATION=OFF on a SQL login means the
             # password never expires.  Windows logins use the domain policy (not applicable).
@@ -273,15 +279,18 @@ class MSSQLCollector(BaseCollector):
                     ),
                     interactive_status=InteractiveStatus.non_interactive,
                     last_login=last_login,
-                    last_login_source="sys.server_principals.last_login_date",
+                    last_login_source="sys.dm_exec_sessions (since instance restart)",
                     is_shared=False,
                     password_never_expires=pwd_never_expires,
+                    password_last_changed=pwd_last_set,
+                    never_logged_in=None,  # absence of a session is NOT proof of never
                     evidence_summary={
                         "login_type": type_desc,
                         "default_db": login.get("default_database_name", ""),
                         "server_roles": roles,
                         "is_policy_checked": bool(login.get("is_policy_checked", 1)),
                         "is_expiration_checked": bool(login.get("is_expiration_checked", 1)),
+                        "password_last_set_source": "LOGINPROPERTY",
                     },
                     entitlements=ents,
                 )
