@@ -37,9 +37,28 @@ ADMIN_CRITICAL_ROLES = {
 }
 
 
+def _classify_mongo_principal(username: str) -> PrincipalType:
+    name = username.lower()
+    if name in {"admin", "root"}:
+        return PrincipalType.built_in
+    if "svc" in name or "monitor" in name:
+        return PrincipalType.service
+    if "generic" in name or name in {"shared"}:
+        return PrincipalType.shared
+    if "app" in name:
+        return PrincipalType.application
+    return PrincipalType.human
+
+
 class MongoCollector(BaseCollector):
     platform = Platform.mongodb
     probes = ("list_users", "get_roles", "list_databases")
+
+    @staticmethod
+    def _interactive_status_for_principal(principal_type: PrincipalType) -> InteractiveStatus:
+        if principal_type in {PrincipalType.human, PrincipalType.shared}:
+            return InteractiveStatus.interactive
+        return InteractiveStatus.non_interactive
 
     def collect_mock(self, target: Target) -> CollectionResult:
         all_users = {
@@ -70,6 +89,24 @@ class MongoCollector(BaseCollector):
                     "db": "admin",
                     "roles": [{"role": "userAdminAnyDatabase", "db": "admin"}],
                     "customData": {},
+                },
+                {
+                    "user": "adt_mongo_interactive",
+                    "db": "admin",
+                    "roles": [{"role": "readWrite", "db": "admin"}],
+                    "customData": {"team": "lab"},
+                },
+                {
+                    "user": "adt_mongo_root_admin",
+                    "db": "admin",
+                    "roles": [{"role": "root", "db": "admin"}],
+                    "customData": {"team": "lab"},
+                },
+                {
+                    "user": "adt_mongo_generic",
+                    "db": "admin",
+                    "roles": [{"role": "readWrite", "db": "admin"}],
+                    "customData": {"team": "lab"},
                 },
             ],
             "appdb": [
@@ -143,20 +180,15 @@ class MongoCollector(BaseCollector):
                                         attributes={"admin_critical": ir["role"] in ADMIN_CRITICAL_ROLES},
                                     )
                                 )
+                principal_type = _classify_mongo_principal(uname)
                 accounts.append(
                     NormalizedAccount(
                         account_name=f"{uname}@{auth_db}",
                         source_type="mongo_account",
-                        principal_type=(
-                            PrincipalType.built_in
-                            if uname == "admin"
-                            else PrincipalType.service
-                            if "svc" in uname or uname in ("backup_svc", "monapp")
-                            else PrincipalType.human
-                        ),
+                        principal_type=principal_type,
                         auth_source=AuthSource.db_native,
                         enabled_status=EnabledStatus.enabled,
-                        interactive_status=InteractiveStatus.interactive,
+                        interactive_status=MongoCollector._interactive_status_for_principal(principal_type),
                         evidence_summary={"auth_db": auth_db, "custom_data": u.get("customData", {})},
                         entitlements=ents,
                     )
@@ -217,10 +249,13 @@ class MongoCollector(BaseCollector):
                 )
                 for r in roles
             ]
+            principal_type = _classify_mongo_principal(username)
             accounts.append(NormalizedAccount(
                 account_name=f"{username}@{auth_db}", source_type="mongodb",
-                principal_type=PrincipalType.service, auth_source=AuthSource.db_native,
-                enabled_status=EnabledStatus.enabled, interactive_status=InteractiveStatus.non_interactive,
+                principal_type=principal_type,
+                auth_source=AuthSource.db_native,
+                enabled_status=EnabledStatus.enabled,
+                interactive_status=MongoCollector._interactive_status_for_principal(principal_type),
                 last_login=None, is_shared=False, password_never_expires=False,
                 evidence_summary={"auth_db": auth_db, "roles": [r.get("role") for r in roles]},
                 entitlements=ents,
