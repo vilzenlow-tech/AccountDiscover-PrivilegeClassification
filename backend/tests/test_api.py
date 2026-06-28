@@ -180,6 +180,22 @@ class TestAssets:
         assert r.status_code == 200
         assert r.json()["id"] == _seed_db["asset_id"]
 
+    def test_download_asset_import_template(self, client, admin_token):
+        from io import BytesIO
+        from openpyxl import load_workbook
+
+        r = client.get(
+            "/api/v1/assets/import/template/excel",
+            headers={"Authorization": f"Bearer {admin_token}"},
+        )
+        assert r.status_code == 200
+        assert r.headers["content-type"] == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        wb = load_workbook(BytesIO(r.content))
+        assert wb.sheetnames == ["Assets", "Instructions"]
+        headers = [cell.value for cell in wb["Assets"][1]]
+        assert headers[:2] == ["hostname", "platform"]
+        assert "connector_name" in headers
+
 
 # ---------------------------------------------------------------------------
 # Rules tests

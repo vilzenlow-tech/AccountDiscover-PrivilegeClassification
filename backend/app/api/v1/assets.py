@@ -5,6 +5,7 @@ import io
 import uuid
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -20,6 +21,18 @@ from app.services.audit import log_action
 
 router = APIRouter(prefix="/assets", tags=["assets"])
 group_router = APIRouter(prefix="/asset-groups", tags=["asset-groups"])
+
+ASSET_IMPORT_COLUMNS = [
+    "hostname",
+    "platform",
+    "ip_address",
+    "port",
+    "environment",
+    "owner",
+    "business_unit",
+    "criticality",
+    "connector_name",
+]
 
 
 def _out(asset: Asset, db: Session) -> AssetOut:
@@ -179,6 +192,81 @@ def delete_asset(
     db.delete(a)
     log_action(db, "asset.deleted", actor_id=p.id, actor_email=p.email, subject_type="asset", subject_id=str(asset_id))
     db.commit()
+
+
+@router.get("/import/template/excel")
+def download_import_template(_: Principal = Depends(require_roles("admin", "security_analyst"))):
+    """Download an Excel workbook that shows users how to prepare asset imports."""
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill
+    from openpyxl.worksheet.datavalidation import DataValidation
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Assets"
+    instructions = wb.create_sheet("Instructions")
+
+    ws.append(ASSET_IMPORT_COLUMNS)
+    samples = [
+        ["win-dc01.corp.local", "windows", "192.168.7.133", "5985", "production", "IAM Operations", "Security", "critical", "Windows Domain"],
+        ["rhel-app01.corp.local", "rhel", "192.168.7.130", "22", "production", "Linux Operations", "Applications", "high", "ssh"],
+        ["mongo-prod01.corp.local", "mongodb", "192.168.7.130", "27017", "production", "Database Operations", "Data Platform", "critical", "prod-mongoDB-root"],
+    ]
+    for sample in samples:
+        ws.append(sample)
+
+    header_fill = PatternFill("solid", fgColor="D9EAF7")
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+        cell.fill = header_fill
+
+    required_fill = PatternFill("solid", fgColor="FFF2CC")
+    for cell in (ws["A1"], ws["B1"]):
+        cell.fill = required_fill
+
+    platform_validation = DataValidation(
+        type="list",
+        formula1='"rhel,centos,ubuntu,sles,solaris,aix,hpux,windows,mysql,mssql,mongodb,oracle_db,postgresql,redis"',
+        allow_blank=False,
+    )
+    ws.add_data_validation(platform_validation)
+    platform_validation.add("B2:B1000")
+
+    for column in range(1, len(ASSET_IMPORT_COLUMNS) + 1):
+        ws.column_dimensions[ws.cell(row=1, column=column).column_letter].width = 22
+    ws.freeze_panes = "A2"
+
+    instructions.append(["Field", "Required", "Guidance"])
+    rows = [
+        ["hostname", "Yes", "Unique host, IP label, or database instance name."],
+        ["platform", "Yes", "Use one of the dropdown values in the Assets sheet."],
+        ["ip_address", "No", "IPv4/IPv6 address used for discovery."],
+        ["port", "No", "Discovery port, for example 22, 5985, 1433, 27017."],
+        ["environment", "No", "production, uat, development, dr, or similar."],
+        ["owner", "No", "Operational owner or custodian."],
+        ["business_unit", "No", "Owning function, department, or application team."],
+        ["criticality", "No", "critical, high, medium, low, or local convention."],
+        ["connector_name", "No", "Existing credential/connector display name. Unknown names import without a connector."],
+    ]
+    for row in rows:
+        instructions.append(row)
+    instructions.append([])
+    instructions.append(["Note", "Current bulk import accepts CSV. Fill this workbook, then save the Assets sheet as CSV before upload."])
+    for cell in instructions[1]:
+        cell.font = Font(bold=True)
+        cell.fill = header_fill
+    instructions.column_dimensions["A"].width = 22
+    instructions.column_dimensions["B"].width = 14
+    instructions.column_dimensions["C"].width = 90
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    buf.seek(0)
+    return StreamingResponse(
+        io.BytesIO(buf.getvalue()),
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": 'attachment; filename="asset_bulk_import_template.xlsx"'},
+    )
 
 
 @router.post("/import/csv", response_model=BulkImportResult)
