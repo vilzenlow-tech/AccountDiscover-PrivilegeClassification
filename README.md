@@ -130,6 +130,47 @@ collectors to their mock implementations. No real hosts or databases are
 contacted. Flip `COLLECTOR_MODE=live` in `.env` to enable real SSH/WinRM/DB
 connections (see [ARCHITECTURE.md](ARCHITECTURE.md) for prerequisites).
 
+## Lab database seeding
+
+The RHEL lab host at `192.168.7.130` can also seed controlled MySQL and
+MongoDB simulation accounts. The script connects to the host over SSH, uses the
+local `mysql` and `mongosh`/`mongo` clients, and generates throwaway database
+passwords on the host without printing or saving them.
+
+```bash
+export RHEL_TEST_HOST=192.168.7.130
+export RHEL_TEST_USERNAME=root
+export RHEL_TEST_PASSWORD=
+
+python3 scripts/lab_seed_databases.py
+```
+
+To live-scan those database accounts, provide read-capable database credentials
+through local environment variables, then run:
+
+```bash
+export MYSQL_TEST_HOST=192.168.7.130
+export MYSQL_TEST_USERNAME=
+export MYSQL_TEST_PASSWORD=
+
+export MONGO_TEST_HOST=192.168.7.130
+export MONGO_TEST_USERNAME=
+export MONGO_TEST_PASSWORD=
+
+COLLECTOR_MODE=live backend/.venv/bin/python -m pytest backend/tests/test_lab_database_accounts.py -m integration -q
+```
+
+Cleanup removes only `adt_mysql_*` and `adt_mongo_*` lab users plus the
+`adpct_lab_app` database:
+
+```bash
+python3 scripts/lab_cleanup_databases.py
+```
+
+Safety guard: database seeding and cleanup are allowed by default only for
+`192.168.7.130`. For an explicitly approved non-production test host, set
+`ALLOW_NON_LAB_TARGET=true` or pass `--allow-non-lab-target`.
+
 ## Setup instructions (production outline)
 
 1. Provision a managed PostgreSQL instance with TLS, a Redis/Valkey instance,

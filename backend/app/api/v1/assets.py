@@ -6,7 +6,7 @@ import uuid
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
 from fastapi.responses import StreamingResponse
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -102,7 +102,18 @@ def list_assets(
     if enabled is not None:
         q = q.filter(Asset.discovery_enabled == enabled)
     if search:
-        q = q.filter(Asset.hostname.ilike(f"%{search}%"))
+        term = f"%{search.strip()}%"
+        q = q.filter(
+            or_(
+                Asset.hostname.ilike(term),
+                Asset.ip_address.ilike(term),
+                Asset.instance.ilike(term),
+                Asset.environment.ilike(term),
+                Asset.owner.ilike(term),
+                Asset.business_unit.ilike(term),
+                Asset.criticality.ilike(term),
+            )
+        )
     if tag_ids:
         # Asset must have ANY of the specified tags (union, not intersection)
         q = q.filter(

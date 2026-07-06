@@ -69,21 +69,27 @@ def test_risk_matrix_never_logged_in_by_privilege():
 
 def test_mock_mode_rejected_in_prod():
     import pytest
-    from app.main import _enforce_collector_mode
+    from app.config import validate_startup_settings
 
     class _S:
-        env = "prod"
+        env = "production"
+        demo_mode = False
+        secret_key = "x" * 64
+        demo_seed_enabled = False
         collector_mode = "mock"
 
     with pytest.raises(RuntimeError, match="COLLECTOR_MODE=mock"):
-        _enforce_collector_mode(_S())
+        validate_startup_settings(_S())
 
 
 def test_mock_mode_allowed_in_dev():
-    from app.main import _enforce_collector_mode
+    from app.config import validate_startup_settings
 
     class _S:
-        env = "dev"
+        env = "development"
+        demo_mode = False
+        secret_key = "dev-only-change-me"
+        demo_seed_enabled = False
         collector_mode = "mock"
 
-    _enforce_collector_mode(_S())  # must not raise
+    validate_startup_settings(_S())  # must not raise

@@ -250,7 +250,11 @@ class PostgreSQLCollector(BaseCollector):
                 enabled_status=enabled, interactive_status=InteractiveStatus.non_interactive,
                 last_login=None, last_login_source="pg_stat_activity",
                 is_shared=False, password_never_expires=valid_until is None,
-                evidence_summary={"superuser": is_super, "can_login": can_login, "replication": can_replicate, "valid_until": valid_until},
+                evidence_summary={
+                    "superuser": is_super, "can_login": can_login,
+                    "replication": can_replicate, "valid_until": valid_until,
+                    "dbname": dbname,
+                },
                 entitlements=ents,
             ))
 

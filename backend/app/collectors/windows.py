@@ -199,6 +199,61 @@ foreach($g in $all){
                 }
             }
         }
+    }catch{
+        $errs[$g]=$_.Exception.Message
+        try{
+            $grp=[ADSI]("WinNT://$hostname/$g,group")
+            $out[$g]=@($grp.psbase.Invoke('Members') | ForEach-Object {
+                $name=$_.GetType().InvokeMember('Name','GetProperty',$null,$_,$null)
+                $class=$_.GetType().InvokeMember('Class','GetProperty',$null,$_,$null)
+                $path=$_.GetType().InvokeMember('ADsPath','GetProperty',$null,$_,$null)
+                $full=$name
+                $source='Unknown'
+                if($path -match '^WinNT://([^/]+)/([^/]+)/([^/]+)$'){
+                    if($Matches[2] -ieq $hostname){ $full=$hostname+'\'+$name; $source='Local' }
+                    else{ $full=$Matches[1]+'\'+$name; $source='ActiveDirectory' }
+                }elseif($path -match '^WinNT://([^/]+)/([^/]+)$'){
+                    $full=$Matches[1]+'\'+$name; $source='ActiveDirectory'
+                }elseif($name -match '^S-1-'){
+                    $full=$name; $source='Unknown'
+                }
+                [PSCustomObject]@{Name=$full;SID=$null;ObjectClass=$class;PrincipalSource=$source}
+            })
+            if($out[$g].Count -gt 0){ $errs.Remove($g) }
+        }catch{ $out[$g]=@() }
+    }
+}
+[PSCustomObject]@{groups=$out;errors=$errs;expanded=$expanded;hostname=$hostname}|
+ConvertTo-Json -Depth 6 -Compress
+""".strip()
+
+_PS_AD_GROUPS = r"""
+try { Import-Module ActiveDirectory -ErrorAction Stop } catch { '{}' ; return }
+$hostname = $env:COMPUTERNAME
+$domain = try { (Get-ADDomain -EA Stop).NetBIOSName } catch { $env:USERDOMAIN }
+$out=[ordered]@{}; $errs=@{}; $expanded=@{}
+$groups=@('Administrators','Backup Operators','Server Operators','Print Operators',
+          'Account Operators','Replicator','Remote Desktop Users',
+          'Remote Management Users','Hyper-V Administrators','Distributed COM Users')
+foreach($g in $groups){
+    try{
+        $m=@(Get-ADGroupMember -Identity $g -EA Stop | ForEach-Object {
+            $sam=$_.SamAccountName
+            $n=if($sam -and $domain){$domain+'\\'+$sam}elseif($sam){$sam}else{$_.Name}
+            [PSCustomObject]@{Name=$n;SID=$_.SID;ObjectClass=$_.objectClass;PrincipalSource='ActiveDirectory'}
+        })
+        $out[$g]=$m
+        foreach($mem in $m){
+            if($mem.ObjectClass -eq 'group'){
+                $k=$mem.Name
+                if(-not $expanded.ContainsKey($k)){
+                    try{
+                        $expanded[$k]=@(Get-ADGroupMember -Identity $k -Recursive -EA Stop|
+                                        Select-Object Name,SamAccountName,SID,objectClass,DistinguishedName)
+                    }catch{ $expanded[$k]=$null }
+                }
+            }
+        }
     }catch{ $out[$g]=@(); $errs[$g]=$_.Exception.Message }
 }
 [PSCustomObject]@{groups=$out;errors=$errs;expanded=$expanded;hostname=$hostname}|
@@ -808,6 +863,21 @@ class WindowsCollector(BaseCollector):
         groups_data = _run(_PS_GROUPS) or {}
         if not isinstance(groups_data, dict):
             groups_data = {}
+        ad_groups_data = _run(_PS_AD_GROUPS) or {}
+        if isinstance(ad_groups_data, dict) and ad_groups_data.get("groups"):
+            groups = groups_data.setdefault("groups", {})
+            errors = groups_data.setdefault("errors", {})
+            for group_name, members in ad_groups_data.get("groups", {}).items():
+                current = groups.get(group_name)
+                if not current and members:
+                    groups[group_name] = members
+                    errors.pop(group_name, None)
+            expanded = groups_data.setdefault("expanded", {})
+            for group_name, members in (ad_groups_data.get("expanded") or {}).items():
+                if group_name not in expanded and members:
+                    expanded[group_name] = members
+            if ad_groups_data.get("hostname") and not groups_data.get("hostname"):
+                groups_data["hostname"] = ad_groups_data["hostname"]
 
         svcs_raw = _run(_PS_SERVICES) or []
         if isinstance(svcs_raw, dict):
@@ -1227,6 +1297,7 @@ try {
         #       domain users → full "DOMAIN\name"
         #       unresolved   → SID string
         grp_ents_by_key: dict[str, list[NormalizedEntitlement]] = {}
+        grp_ents_by_sid: dict[str, list[NormalizedEntitlement]] = {}
         # principal registry: key → {name, sid, source_type, principal_type, auth_source, domain, short}
         principals: dict[str, dict] = {}
 
@@ -1244,6 +1315,21 @@ try {
         def _add_ent(key: str, ent: NormalizedEntitlement) -> None:
             if key:
                 grp_ents_by_key.setdefault(key, []).append(ent)
+
+        def _add_ent_by_sid(sid: str, ent: NormalizedEntitlement) -> None:
+            if sid:
+                grp_ents_by_sid.setdefault(sid, []).append(ent)
+
+        def _dedupe_entitlements(items: list[NormalizedEntitlement]) -> list[NormalizedEntitlement]:
+            seen: set[tuple[str, str, str | None, str | None]] = set()
+            deduped: list[NormalizedEntitlement] = []
+            for item in items:
+                key = (item.kind, item.name, item.source, item.via)
+                if key in seen:
+                    continue
+                seen.add(key)
+                deduped.append(item)
+            return deduped
 
         # Direct group members
         for grp_name, members in groups_full.items():
@@ -1276,7 +1362,7 @@ try {
                     key = name  # full DOMAIN\name for domain principals
 
                 _register(key, name, sid, info)
-                _add_ent(key, NormalizedEntitlement(
+                ent = NormalizedEntitlement(
                     kind="windows_local_group",
                     name=grp_name,
                     source=f"Get-LocalGroupMember:{hostname}\\{grp_name}",
@@ -1291,7 +1377,9 @@ try {
                         "object_class": oc,
                         "domain_admin_path": _is_domain_admin_group(name) and is_admin,
                     },
-                ))
+                )
+                _add_ent(key, ent)
+                _add_ent_by_sid(sid, ent)
 
         # Nested expanded members (domain group → individual AD users)
         for domain_grp, members in nested_expanded.items():
@@ -1361,6 +1449,7 @@ try {
         # ── Emit local accounts (from Get-LocalUser) ──────────────────────
         accounts: list[NormalizedAccount] = []
         emitted: set[str] = set()
+        emitted_sids: set[str] = set()
 
         for u in users_raw:
             if not u or not u.get("Name"):
@@ -1384,8 +1473,10 @@ try {
 
             ents: list[NormalizedEntitlement] = []
             ents += grp_ents_by_key.get(key, [])
+            ents += grp_ents_by_sid.get(sid, [])
             ents += svc_ents_by_short.get(key, [])
             ents += task_ents_by_short.get(key, [])
+            ents = _dedupe_entitlements(ents)
 
             if info.principal_type == PrincipalType.service:
                 ents.append(NormalizedEntitlement(
@@ -1420,6 +1511,8 @@ try {
                 entitlements=ents,
             ))
             emitted.add(key)
+            if sid:
+                emitted_sids.add(sid)
 
         # ── Emit domain / gMSA / computer / unresolved accounts ───────────
         for key, pdata in principals.items():
@@ -1435,12 +1528,15 @@ try {
             auth: AuthSource  = pdata["auth_source"]
             name: str         = pdata["name"]
             sid: str          = pdata["sid"]
+            if sid and sid in emitted_sids:
+                continue
             domain: str       = pdata["domain"] or ""
             short: str        = pdata["short"]
 
             ents: list[NormalizedEntitlement] = list(grp_ents_by_key.get(key, []))
             ents += svc_ents_by_short.get(short, [])
             ents += task_ents_by_short.get(short, [])
+            ents = _dedupe_entitlements(ents)
 
             # Identity markers for specialist types
             if st == "windows_gmsa":

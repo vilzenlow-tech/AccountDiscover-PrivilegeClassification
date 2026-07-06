@@ -1,0 +1,116 @@
+{
+  "target": "192.168.7.130",
+  "platform": "mysql",
+  "accounts": [
+    {
+      "account_name": "adt_mysql_interactive@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "human",
+      "expected_interactive_status": "interactive",
+      "expected_password_state": "active",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": "SELECT"
+    },
+    {
+      "account_name": "adt_mysql_interactive_expired@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "human",
+      "expected_interactive_status": "interactive",
+      "expected_password_state": "expired",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": "SELECT"
+    },
+    {
+      "account_name": "adt_mysql_svc_expired@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "service",
+      "expected_interactive_status": "non_interactive",
+      "expected_password_state": "expired",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": "SELECT"
+    },
+    {
+      "account_name": "adt_mysql_interactive_expiring@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "human",
+      "expected_interactive_status": "interactive",
+      "expected_password_state": "expiring_soon",
+      "expected_password_lifetime_days": 7,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": "SELECT"
+    },
+    {
+      "account_name": "adt_mysql_app_expiring@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "application",
+      "expected_interactive_status": "non_interactive",
+      "expected_password_state": "expiring_soon",
+      "expected_password_lifetime_days": 7,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": "SELECT"
+    },
+    {
+      "account_name": "adt_mysql_admin@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "human",
+      "expected_interactive_status": "interactive",
+      "expected_password_state": "active",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "full_admin",
+      "expected_grant_contains": "ALL PRIVILEGES"
+    },
+    {
+      "account_name": "adt_mysql_app_rw@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "application",
+      "expected_interactive_status": "non_interactive",
+      "expected_password_state": "active",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": "SELECT, INSERT, UPDATE, DELETE"
+    },
+    {
+      "account_name": "adt_mysql_readonly@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "human",
+      "expected_interactive_status": "interactive",
+      "expected_password_state": "active",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": "SELECT"
+    },
+    {
+      "account_name": "adt_mysql_backup_svc@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "service",
+      "expected_interactive_status": "non_interactive",
+      "expected_password_state": "active",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "sensitive_non_admin",
+      "expected_grant_contains": "RELOAD"
+    },
+    {
+      "account_name": "adt_mysql_locked@%",
+      "enabled_status": "locked",
+      "expected_principal_type": "human",
+      "expected_interactive_status": "interactive",
+      "expected_password_state": "active",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": ""
+    },
+    {
+      "account_name": "adt_mysql_generic@%",
+      "enabled_status": "enabled",
+      "expected_principal_type": "shared",
+      "expected_interactive_status": "interactive",
+      "expected_password_state": "active",
+      "expected_password_lifetime_days": null,
+      "expected_privilege": "non_privileged",
+      "expected_grant_contains": "SELECT"
+    }
+  ]
+}

@@ -8,15 +8,109 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models.asset import Asset, AssetGroup
-from app.models.enums import JobStatus
+from app.models.connector import Connector, Credential as CredModel
+from app.models.enums import CredentialMode, JobStatus, Platform, ScanType
 from app.models.job import DiscoveryJob, DiscoveryJobTarget, ScanProfile
 from app.schemas.common import Page
 from app.schemas.scan import DiscoveryJobOut, DiscoveryJobTargetOut, ScanLaunchRequest
 from app.security import Principal, get_current_principal, require_roles
+from app.config import get_settings
 from app.services.audit import log_action
+from app.services.scan_service import _PLATFORM_KIND
 from app.services.scan_service import compute_delta, create_job
+from app.services.vault import get_vault
 
 router = APIRouter(prefix="/scans", tags=["scans"])
+
+_PLATFORM_SELECTORS = {
+    "all",
+    "windows",
+    "windows_server",
+    "windows_desktop",
+    *(p.value for p in Platform),
+}
+
+
+def _dedupe(items: list[uuid.UUID]) -> list[uuid.UUID]:
+    return list(dict.fromkeys(items))
+
+
+def _windows_role(asset: Asset) -> str | None:
+    tags = asset.tags or {}
+    value = (
+        tags.get("windows_role")
+        or tags.get("windows_kind")
+        or tags.get("windows_type")
+        or tags.get("os_role")
+    )
+    return str(value).lower() if value else None
+
+
+def _matches_platform_selector(asset: Asset, selectors: set[str]) -> bool:
+    if "all" in selectors:
+        return True
+    if asset.platform == Platform.windows:
+        role = _windows_role(asset)
+        if "windows" in selectors:
+            return True
+        if "windows_server" in selectors and role == "server":
+            return True
+        if "windows_desktop" in selectors and role in {"desktop", "workstation", "client"}:
+            return True
+        return False
+    return asset.platform.value in selectors
+
+
+def _validate_live_credentials(db: Session, assets: list[Asset], credential_mode: CredentialMode) -> None:
+    if get_settings().collector_mode == "mock" or credential_mode == CredentialMode.none:
+        return
+
+    missing: list[str] = []
+    missing_secrets: list[str] = []
+    for asset in assets:
+        connector_id = asset.connector_id or (asset.tags or {}).get("connector_id")
+        kind = _PLATFORM_KIND.get(asset.platform)
+        conn = None
+        if connector_id:
+            conn = db.query(Connector).filter(Connector.id == connector_id, Connector.is_active.is_(True)).first()
+        elif kind:
+            conn = db.query(Connector).filter(Connector.kind == kind, Connector.is_active.is_(True)).first()
+        if not conn or not conn.credential_id:
+            missing.append(f"{asset.hostname} ({asset.platform.value})")
+            continue
+
+        cred = db.query(CredModel).filter(CredModel.id == conn.credential_id, CredModel.is_active.is_(True)).first()
+        if not cred:
+            missing.append(f"{asset.hostname} ({asset.platform.value})")
+            continue
+
+        try:
+            get_vault().resolve(cred.vault_ref)
+        except LookupError:
+            missing_secrets.append(f"{cred.name} ({cred.vault_ref})")
+        except Exception as exc:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Vault resolution failed for credential '{cred.name}': {exc}",
+            ) from exc
+
+    if missing:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Credentialed scan requires an active connector with a linked credential for: "
+                + ", ".join(missing[:10])
+            ),
+        )
+    if missing_secrets:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Credentialed scan cannot start because vault secret material is missing for: "
+                + ", ".join(dict.fromkeys(missing_secrets[:10]))
+                + ". Restore the secret from Connectors / Agents → Credentials."
+            ),
+        )
 
 
 @router.post("", response_model=DiscoveryJobOut, status_code=201)
@@ -25,6 +119,10 @@ def launch_scan(
     db: Session = Depends(get_db),
     p: Principal = Depends(require_roles("admin", "security_analyst")),
 ):
+    invalid_platforms = sorted(set(body.selected_platforms) - _PLATFORM_SELECTORS)
+    if invalid_platforms:
+        raise HTTPException(400, f"Unsupported platform selector(s): {', '.join(invalid_platforms)}")
+
     profile = db.query(ScanProfile).filter(ScanProfile.id == body.profile_id).first() if body.profile_id else None
     target_scope = {
         "asset_ids": [str(asset_id) for asset_id in body.asset_ids],
@@ -53,9 +151,35 @@ def launch_scan(
         if grp:
             asset_ids += [a.id for a in grp.assets]
 
-    asset_ids = list(set(asset_ids))
+    asset_ids = _dedupe(asset_ids)
     if not asset_ids:
         raise HTTPException(400, "No target assets resolved from the given scope")
+
+    assets = db.query(Asset).filter(Asset.id.in_(asset_ids)).all()
+    existing_asset_ids = {a.id for a in assets}
+    missing_asset_ids = [str(asset_id) for asset_id in asset_ids if asset_id not in existing_asset_ids]
+    if missing_asset_ids:
+        raise HTTPException(400, f"Selected asset(s) not found: {', '.join(missing_asset_ids[:10])}")
+
+    requested_platforms = set(body.selected_platforms)
+    assets = [asset for asset in assets if _matches_platform_selector(asset, requested_platforms)]
+    if profile and profile.platforms:
+        profile_platforms = set(profile.platforms)
+        assets = [asset for asset in assets if asset.platform.value in profile_platforms]
+    if not assets:
+        raise HTTPException(
+            400,
+            "No target assets match the selected platform(s), profile restrictions, and scope",
+        )
+
+    if body.scan_type in {
+        ScanType.credentialed_discovery,
+        ScanType.privileged_accounts,
+        ScanType.password_policy,
+        ScanType.interactive_classification,
+        ScanType.full_discovery,
+    }:
+        _validate_live_credentials(db, assets, body.credential_mode)
 
     # Resolve collect_password_policy: request override > profile setting > False
     collect_policy = body.collect_password_policy
@@ -63,14 +187,21 @@ def launch_scan(
         collect_policy = bool(profile.collect_password_policy)
     if collect_policy is None:
         collect_policy = False
+    if body.scan_type == ScanType.password_policy:
+        collect_policy = True
 
     job = create_job(
         db,
-        asset_ids=asset_ids,
+        asset_ids=[a.id for a in assets],
         profile_id=body.profile_id,
         triggered_by=p.email,
         triggered_kind="manual",
         note=body.note,
+        name=body.name,
+        scan_type=body.scan_type,
+        selected_platforms=body.selected_platforms,
+        credential_mode=body.credential_mode,
+        connector_id=body.connector_id,
         collect_password_policy=collect_policy,
     )
     db.commit()
@@ -78,7 +209,20 @@ def launch_scan(
     from app.workers.tasks import dispatch_job_task
     dispatch_job_task.delay(str(job.id))
 
-    log_action(db, "scan.launched", actor_id=p.id, actor_email=p.email, subject_type="job", subject_id=str(job.id))
+    log_action(
+        db,
+        "scan.launched",
+        actor_id=p.id,
+        actor_email=p.email,
+        subject_type="job",
+        subject_id=str(job.id),
+        context={
+            "scan_type": body.scan_type.value,
+            "selected_platforms": body.selected_platforms,
+            "credential_mode": body.credential_mode.value,
+            "target_count": len(assets),
+        },
+    )
     db.commit()
     return DiscoveryJobOut.model_validate(job)
 

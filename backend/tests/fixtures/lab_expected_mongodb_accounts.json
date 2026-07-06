@@ -1,0 +1,62 @@
+{
+  "target": "192.168.7.130",
+  "platform": "mongodb",
+  "accounts": [
+    {
+      "account_name": "adt_mongo_interactive@admin",
+      "enabled_status": "enabled",
+      "expected_principal_type": "human",
+      "expected_interactive_status": "interactive",
+      "expected_privilege": "non_privileged",
+      "expected_role": "read"
+    },
+    {
+      "account_name": "adt_mongo_root_admin@admin",
+      "enabled_status": "enabled",
+      "expected_principal_type": "human",
+      "expected_interactive_status": "interactive",
+      "expected_privilege": "full_admin",
+      "expected_role": "root"
+    },
+    {
+      "account_name": "adt_mongo_backup_svc@admin",
+      "enabled_status": "enabled",
+      "expected_principal_type": "service",
+      "expected_interactive_status": "non_interactive",
+      "expected_privilege": "operator_high_impact",
+      "expected_role": "backup"
+    },
+    {
+      "account_name": "adt_mongo_monitor@admin",
+      "enabled_status": "enabled",
+      "expected_principal_type": "service",
+      "expected_interactive_status": "non_interactive",
+      "expected_privilege": "sensitive_non_admin",
+      "expected_role": "clusterMonitor"
+    },
+    {
+      "account_name": "adt_mongo_app_rw@adpct_lab_app",
+      "enabled_status": "enabled",
+      "expected_principal_type": "application",
+      "expected_interactive_status": "non_interactive",
+      "expected_privilege": "non_privileged",
+      "expected_role": "readWrite"
+    },
+    {
+      "account_name": "adt_mongo_app_owner@adpct_lab_app",
+      "enabled_status": "enabled",
+      "expected_principal_type": "application",
+      "expected_interactive_status": "non_interactive",
+      "expected_privilege": "admin_equivalent",
+      "expected_role": "dbOwner"
+    },
+    {
+      "account_name": "adt_mongo_generic@admin",
+      "enabled_status": "enabled",
+      "expected_principal_type": "shared",
+      "expected_interactive_status": "interactive",
+      "expected_privilege": "sensitive_non_admin",
+      "expected_role": "readAnyDatabase"
+    }
+  ]
+}

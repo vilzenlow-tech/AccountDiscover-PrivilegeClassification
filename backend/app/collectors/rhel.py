@@ -265,6 +265,12 @@ class RHELCollector(BaseCollector):
                 content = ssh.run(f"cat /etc/sudoers.d/{fname} 2>/dev/null || true")
                 sudoers_d[f"/etc/sudoers.d/{fname}"] = [l for l in content.splitlines() if l.strip() and not l.startswith("#")]
             lastlog_text = ssh.run("lastlog 2>/dev/null || true")
+            timezone_offset = ssh.run("date +%z 2>/dev/null || true").strip()
+            wtmp_text = ssh.run("last -F -w 2>/dev/null || true")
+            authlog_text = ssh.run(
+                "grep -hE 'Accepted .* for |session opened for user ' "
+                "/var/log/secure /var/log/secure-* 2>/dev/null | tail -n 1000 || true"
+            )
             # Policy collection — run inside the SSH session while connection is open
             if target.options.get("collect_password_policy"):
                 policy_raw_texts["pwquality"] = ssh.run(
@@ -281,7 +287,14 @@ class RHELCollector(BaseCollector):
                     "/etc/pam.d/system-auth /etc/pam.d/password-auth 2>/dev/null || true"
                 )
 
-        from app.collectors._unix_parsers import ShadowEntry, parse_lastlog, parse_shadow_line
+        from app.collectors._unix_parsers import (
+            ShadowEntry,
+            merge_login_evidence,
+            parse_authlog_last,
+            parse_lastlog,
+            parse_shadow_line,
+            parse_wtmp_last,
+        )
 
         shadow_entries: dict[str, ShadowEntry] = {}
         for line in shadow_raw:
@@ -295,6 +308,9 @@ class RHELCollector(BaseCollector):
         sudoers_parsed.update(sudoers_d)
 
         lastlog_map = parse_lastlog(lastlog_text)
+        wtmp_map = parse_wtmp_last(wtmp_text, tz_offset=timezone_offset)
+        authlog_map = parse_authlog_last(authlog_text, tz_offset=timezone_offset)
+        login_map = merge_login_evidence(lastlog_map, wtmp_map, authlog_map)
 
         probes_out = [
             probe("getent_passwd", "getent passwd", passwd_raw),
@@ -310,6 +326,8 @@ class RHELCollector(BaseCollector):
                 {u: (dt.isoformat() if dt else ("never" if never else "unknown"))
                  for u, (dt, never) in lastlog_map.items()},
             ),
+            probe("wtmp_last", "last -F -w", {u: dt.isoformat() for u, dt in wtmp_map.items()}),
+            probe("authlog_last", "grep auth session evidence from /var/log/secure", {u: dt.isoformat() for u, dt in authlog_map.items()}),
         ]
 
         accounts: list[NormalizedAccount] = []
@@ -363,7 +381,7 @@ class RHELCollector(BaseCollector):
                     if is_broad:
                         sudo_broad = True
                     ents.append(NormalizedEntitlement(kind="sudo_rule", name=rule.strip(), scope="ALL" if " ALL" in rule else "limited", source=path, inherited=via != "direct", via=via, attributes={"broad": is_broad, "nopasswd": "NOPASSWD" in rule}))
-            last_login, never_logged = lastlog_map.get(name, (None, False)) if lastlog_map else (None, None)
+            last_login, never_logged, login_source = login_map.get(name, (None, None, "unknown"))
             pwd_changed = entry.password_last_changed if entry else None
             pwd_expires = (
                 pwd_changed + _td(days=entry.max_days)
@@ -373,7 +391,7 @@ class RHELCollector(BaseCollector):
             accounts.append(NormalizedAccount(
                 account_name=name, source_type="linux_local", principal_type=principal_type,
                 auth_source=AuthSource.local, enabled_status=enabled, interactive_status=interactive,
-                last_login=last_login, last_login_source="lastlog",
+                last_login=last_login, last_login_source=login_source,
                 never_logged_in=never_logged,
                 password_last_changed=pwd_changed,
                 password_expires_at=pwd_expires,

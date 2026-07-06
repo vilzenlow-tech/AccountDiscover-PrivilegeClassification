@@ -80,17 +80,23 @@ class LocalVaultProvider(VaultProvider):
         # 1. Docker secrets
         docker_secret = Path("/run/secrets/vault_fernet_key")
         if docker_secret.exists():
-            key = docker_secret.read_text().strip()
-            if key:
-                return key
+            try:
+                key = docker_secret.read_text().strip()
+                if key:
+                    return key
+            except OSError:
+                pass
 
         # 2. Explicit file path env var
         if settings.vault_local_fernet_key_file:
             key_path = Path(settings.vault_local_fernet_key_file)
             if key_path.exists():
-                key = key_path.read_text().strip()
-                if key:
-                    return key
+                try:
+                    key = key_path.read_text().strip()
+                    if key:
+                        return key
+                except OSError:
+                    pass
 
         # 3. Inline env var (dev / fallback)
         return settings.vault_local_fernet_key

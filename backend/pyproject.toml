@@ -59,3 +59,6 @@ ignore = ["E501"]
 addopts = "-ra --strict-markers"
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "integration: tests that require reachable external lab machines",
+]

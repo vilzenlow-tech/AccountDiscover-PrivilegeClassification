@@ -4,7 +4,9 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, computed_field
+
+from app.services.account_context import domain_for_account, origin_for_account, schema_name_for_account
 
 from app.models.enums import (
     ActivityStatus,
@@ -73,6 +75,21 @@ class AccountOut(BaseModel):
     never_logged_in: bool | None = None
     activity_status: ActivityStatus = ActivityStatus.no_evidence
     collection_mode: str | None = None
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def schema_name(self) -> str | None:
+        return schema_name_for_account(self)
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def account_origin(self) -> str:
+        return origin_for_account(self)
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def account_domain(self) -> str | None:
+        return domain_for_account(self)
 
     model_config = {"from_attributes": True}
 

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
 from app.models._base import created_at, updated_at, uuid_pk
-from app.models.enums import JobStatus, Platform, ScanMode
+from app.models.enums import CredentialMode, JobStatus, Platform, ScanMode, ScanType
 
 
 class ScanProfile(Base):
@@ -124,6 +124,28 @@ class DiscoveryJob(Base):
         "DiscoveryJobTarget", back_populates="job", cascade="all, delete-orphan"
     )
 
+    @property
+    def name(self) -> str | None:
+        return (self.scope or {}).get("name")
+
+    @property
+    def scan_type(self) -> ScanType | None:
+        value = (self.scope or {}).get("scan_type")
+        return ScanType(value) if value else None
+
+    @property
+    def selected_platforms(self) -> list[str]:
+        return list((self.scope or {}).get("selected_platforms") or [])
+
+    @property
+    def credential_mode(self) -> CredentialMode | None:
+        value = (self.scope or {}).get("credential_mode")
+        return CredentialMode(value) if value else None
+
+    @property
+    def collect_password_policy(self) -> bool:
+        return bool((self.scope or {}).get("collect_password_policy", False))
+
 
 class DiscoveryJobTarget(Base):
     """One (job, asset, collector) tuple."""
@@ -155,6 +177,18 @@ class DiscoveryJobTarget(Base):
     stats: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
 
     job: Mapped[DiscoveryJob] = relationship("DiscoveryJob", back_populates="targets")
+
+    @property
+    def scan_type(self) -> ScanType | None:
+        value = (self.stats or {}).get("scan_type")
+        if value:
+            return ScanType(value)
+        return self.job.scan_type if self.job else None
+
+    @property
+    def connector_id(self) -> uuid.UUID | None:
+        value = (self.stats or {}).get("connector_id")
+        return uuid.UUID(str(value)) if value else None
 
 
 class BulkImportJob(Base):

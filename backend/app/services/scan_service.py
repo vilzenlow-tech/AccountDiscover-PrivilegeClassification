@@ -14,10 +14,12 @@ from sqlalchemy.orm import Session
 
 from app.collectors import get_collector
 from app.collectors.base import CollectionResult, NormalizedAccount
+from app.config import get_settings
 from app.models.account import Account, AccountEntitlement, DiscoveryResultRaw
 from app.models.asset import Asset
 from app.models.enums import (
     AuthSource,
+    CredentialMode,
     EnabledStatus,
     InteractiveStatus,
     JobStatus,
@@ -25,6 +27,7 @@ from app.models.enums import (
     PRIVILEGE_SEVERITY,
     PrincipalType,
     PrivilegeClass,
+    ScanType,
 )
 from app.models.finding import FindingReviewState, PrivilegeFinding
 from app.models.job import DiscoveryJob, DiscoveryJobTarget
@@ -162,6 +165,11 @@ def create_job(
     triggered_by: str | None,
     triggered_kind: str,
     note: str | None,
+    name: str | None = None,
+    scan_type: ScanType = ScanType.full_discovery,
+    selected_platforms: list[str] | None = None,
+    credential_mode: CredentialMode = CredentialMode.asset,
+    connector_id: uuid.UUID | None = None,
     collect_password_policy: bool = False,
 ) -> DiscoveryJob:
     assets = db.query(Asset).filter(Asset.id.in_(asset_ids)).all()
@@ -182,7 +190,15 @@ def create_job(
         scope_description=scope_desc,
         # Store collect_password_policy in the scope JSONB so run_target can
         # read it without needing to look up the profile again.
-        scope={"asset_ids": [str(a.id) for a in assets], "collect_password_policy": collect_password_policy},
+        scope={
+            "name": name,
+            "asset_ids": [str(a.id) for a in assets],
+            "selected_platforms": selected_platforms or [],
+            "scan_type": scan_type.value,
+            "credential_mode": credential_mode.value,
+            "connector_id": str(connector_id) if connector_id else None,
+            "collect_password_policy": collect_password_policy,
+        },
         profile_id=profile_id,
         triggered_by=triggered_by,
         triggered_kind=triggered_kind,
@@ -198,6 +214,10 @@ def create_job(
             asset_id=asset.id,
             platform=asset.platform,
             status=JobStatus.pending,
+            stats={
+                "scan_type": scan_type.value,
+                "connector_id": str(connector_id) if connector_id else None,
+            },
         )
         db.add(target)
     db.flush()
@@ -232,6 +252,10 @@ def run_target(db: Session, job_target_id: uuid.UUID) -> None:
     collect_policy_flag: bool = bool(
         (job_row.scope or {}).get("collect_password_policy", False)
     ) if job_row else False
+    scan_type_value = (job_row.scope or {}).get("scan_type") if job_row else None
+    credential_mode = CredentialMode(
+        (job_row.scope or {}).get("credential_mode", CredentialMode.asset.value)
+    ) if job_row else CredentialMode.asset
 
     try:
         from app.collectors.base import Target as CollectorTarget, Credential as CollectorCredential
@@ -243,7 +267,7 @@ def run_target(db: Session, job_target_id: uuid.UUID) -> None:
         if asset.ssh_host_fingerprint:
             target_opts["ssh_host_fingerprint"] = asset.ssh_host_fingerprint
         # Signal collectors to also collect password policy data when enabled.
-        if collect_policy_flag:
+        if collect_policy_flag or scan_type_value == ScanType.password_policy.value:
             target_opts["collect_password_policy"] = True
         ct = CollectorTarget(
             asset_id=str(asset.id),
@@ -255,7 +279,7 @@ def run_target(db: Session, job_target_id: uuid.UUID) -> None:
             options=target_opts,
         )
         collector = get_collector(asset.platform)
-        cred_obj = _resolve_credential(db, asset)
+        cred_obj = None if credential_mode == CredentialMode.none else _resolve_credential(db, asset)
         result: CollectionResult = collector.collect(ct, credential=cred_obj)
 
         # TOFU: persist the observed SSH fingerprint on first-ever connection.
@@ -267,8 +291,13 @@ def run_target(db: Session, job_target_id: uuid.UUID) -> None:
                 fingerprint=f"SHA256:{result.observed_ssh_fingerprint}",
             )
 
-        _persist_raw(db, target_row.id, result)
-        accounts, normalized = _upsert_accounts(db, asset, result)
+        raw_evidence_refs = _persist_raw(db, target_row.id, result)
+        accounts, normalized = _upsert_accounts(
+            db,
+            asset,
+            result,
+            raw_evidence_refs=raw_evidence_refs,
+        )
         _evaluate_and_write_findings(db, target_row.job_id, asset, accounts, normalized)
 
         # Always run: generate PWPOL-019/PWPOL-008 findings for accounts where
@@ -289,6 +318,9 @@ def run_target(db: Session, job_target_id: uuid.UUID) -> None:
                 (target_row.finished_at - target_row.started_at).total_seconds() * 1000
             )
         target_row.stats = {
+            "scan_type": scan_type_value,
+            "credential_mode": credential_mode.value,
+            "connector_id": (job_row.scope or {}).get("connector_id") if job_row else None,
             "accounts": len(accounts),
             "probes": len(result.probes),
             **({"password_never_expires": pne_count} if pne_count else {}),
@@ -325,7 +357,8 @@ def _fail_target(db: Session, row: DiscoveryJobTarget, bucket: str, detail: str)
 # Persist raw probe results
 # ---------------------------------------------------------------------------
 
-def _persist_raw(db: Session, job_target_id: uuid.UUID, result: CollectionResult) -> None:
+def _persist_raw(db: Session, job_target_id: uuid.UUID, result: CollectionResult) -> list[str]:
+    raw_refs: list[str] = []
     for probe in result.probes:
         raw = DiscoveryResultRaw(
             job_target_id=job_target_id,
@@ -339,7 +372,9 @@ def _persist_raw(db: Session, job_target_id: uuid.UUID, result: CollectionResult
             collected_at=probe.collected_at,
         )
         db.add(raw)
-    db.flush()
+        db.flush()
+        raw_refs.append(str(raw.id))
+    return raw_refs
 
 
 # ---------------------------------------------------------------------------
@@ -347,7 +382,10 @@ def _persist_raw(db: Session, job_target_id: uuid.UUID, result: CollectionResult
 # ---------------------------------------------------------------------------
 
 def _upsert_accounts(
-    db: Session, asset: Asset, result: CollectionResult
+    db: Session,
+    asset: Asset,
+    result: CollectionResult,
+    raw_evidence_refs: list[str] | None = None,
 ) -> tuple[list[Account], list[NormalizedAccount]]:
     """Upsert accounts and their entitlements.
 
@@ -357,8 +395,12 @@ def _upsert_accounts(
     entitlements directly rather than reading the stale SQLAlchemy
     relationship cache (bulk DELETE does not invalidate the in-memory list).
     """
-    from app.config import get_settings
     _collector_mode = get_settings().collector_mode
+    if _collector_mode == "live" and result.accounts and not raw_evidence_refs:
+        raise RuntimeError(
+            "Cannot persist live account results without raw scan evidence references."
+        )
+
     rows: list[Account] = []
     nas: list[NormalizedAccount] = []
     now = datetime.now(UTC)
@@ -403,6 +445,7 @@ def _upsert_accounts(
         acc.activity_status = compute_activity_status(na.last_login, na.never_logged_in)
         acc.owner = na.owner
         acc.evidence_summary = na.evidence_summary
+        acc.raw_evidence_refs = list(raw_evidence_refs or [])
 
         # Windows interactive classification fields (None for non-Windows accounts)
         if na.win_interactive_confidence:

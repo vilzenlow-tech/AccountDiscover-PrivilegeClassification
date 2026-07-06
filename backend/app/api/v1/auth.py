@@ -16,6 +16,7 @@ from app.security import (
     decode_token,
     get_current_principal,
     hash_password,
+    permissions_for_roles,
     verify_password,
     Principal,
 )
@@ -32,7 +33,7 @@ _PASSWORD_PATTERN = re.compile(
 )
 
 
-def _validate_password_strength(password: str) -> None:
+def validate_password_strength(password: str, *, username: str | None = None, email: str | None = None) -> None:
     if not _PASSWORD_PATTERN.match(password):
         raise HTTPException(
             status_code=400,
@@ -41,6 +42,11 @@ def _validate_password_strength(password: str) -> None:
                 "lowercase, a digit, and a special character."
             ),
         )
+    lowered = password.lower()
+    if username and username.lower() in lowered:
+        raise HTTPException(status_code=400, detail="Password must not contain the username.")
+    if email and email.split("@")[0].lower() in lowered:
+        raise HTTPException(status_code=400, detail="Password must not contain the email local-part.")
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -70,6 +76,7 @@ def login(body: LoginRequest, request: Request, db: Session = Depends(get_db)):
 
     # Reset lockout counter on successful authentication.
     user.failed_login_attempts = 0
+    user.last_login_at = datetime.now(UTC)
 
     roles = [r.name for r in user.roles]
     access = create_access_token(str(user.id), roles)
@@ -118,8 +125,14 @@ def change_password(
 ):
     user = db.query(User).filter(User.id == principal.id).first()
     if not user or not verify_password(body.current_password, user.password_hash):
+        log_action(db, "auth.password_change_failed", actor_id=principal.id, actor_email=principal.email)
+        db.commit()
         raise HTTPException(status_code=400, detail="Current password incorrect")
-    _validate_password_strength(body.new_password)
+    if body.confirm_password is not None and body.new_password != body.confirm_password:
+        raise HTTPException(status_code=400, detail="New password and confirmation do not match")
+    if verify_password(body.new_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="New password must be different from current password")
+    validate_password_strength(body.new_password, username=user.username, email=user.email)
     user.password_hash = hash_password(body.new_password)
     user.must_change_password = False
     log_action(db, "auth.password_changed", actor_id=principal.id, actor_email=principal.email)
@@ -132,9 +145,11 @@ def me(principal: Principal = Depends(get_current_principal), db: Session = Depe
     user = db.query(User).filter(User.id == principal.id).first()
     return UserOut(
         id=str(user.id),
+        username=user.username,
         email=user.email,
         full_name=user.full_name,
         roles=principal.roles,
         is_active=user.is_active,
         must_change_password=user.must_change_password,
+        permissions=sorted(permissions_for_roles(principal.roles)),
     )

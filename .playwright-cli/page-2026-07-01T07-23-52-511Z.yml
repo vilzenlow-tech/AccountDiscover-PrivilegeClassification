@@ -1,0 +1,11 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - generic [ref=e6]: AD
+    - generic [ref=e7]:
+      - heading "Sign in" [level=1] [ref=e8]
+      - paragraph [ref=e9]: Use your operator account to access the discovery console.
+  - generic [ref=e10]:
+    - textbox "admin@local" [ref=e13]
+    - textbox "Password" [ref=e16]
+    - button "Sign in" [ref=e17]
+    - paragraph [ref=e18]: "Default first run: admin@local / ChangeMe!123"

@@ -6,14 +6,19 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import JobStatus, Platform, ScanMode
+from app.models.enums import CredentialMode, JobStatus, Platform, ScanMode, ScanType
 
 
 class ScanLaunchRequest(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=128)
+    scan_type: ScanType
+    selected_platforms: list[str] = Field(min_length=1)
     asset_ids: list[uuid.UUID] = []
     group_ids: list[uuid.UUID] = []
     all_enabled: bool = False
     profile_id: uuid.UUID | None = None
+    credential_mode: CredentialMode = CredentialMode.asset
+    connector_id: uuid.UUID | None = None
     note: str | None = None
     # One-shot override: when set, takes precedence over the profile setting.
     # When None, the profile's collect_password_policy value is used (False if
@@ -23,6 +28,11 @@ class ScanLaunchRequest(BaseModel):
 
 class DiscoveryJobOut(BaseModel):
     id: uuid.UUID
+    name: str | None = None
+    scan_type: ScanType | None = None
+    selected_platforms: list[str] = []
+    credential_mode: CredentialMode | None = None
+    collect_password_policy: bool = False
     scope_description: str
     status: JobStatus
     triggered_by: str | None
@@ -43,6 +53,8 @@ class DiscoveryJobTargetOut(BaseModel):
     hostname: str | None = None
     ip_address: str | None = None
     platform: Platform
+    scan_type: ScanType | None = None
+    connector_id: uuid.UUID | None = None
     status: JobStatus
     attempt: int
     started_at: datetime | None

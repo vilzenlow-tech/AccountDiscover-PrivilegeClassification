@@ -2,10 +2,10 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, Literal
 
 import bcrypt as _bcrypt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
@@ -63,20 +63,92 @@ def decode_token(token: str) -> dict[str, Any]:
 
 # --- Current user dependency ---
 
+Permission = Literal[
+    "users:create",
+    "users:read",
+    "users:update",
+    "users:disable",
+    "users:reset_password",
+    "roles:manage",
+    "assets:read",
+    "assets:manage",
+    "tags:read",
+    "tags:manage",
+    "scans:launch",
+    "scans:schedule",
+    "scans:cancel",
+    "scans:retry",
+    "scans:read",
+    "accounts:read",
+    "findings:read",
+    "findings:review",
+    "privileged_findings:read",
+    "connectors:read",
+    "connectors:manage",
+    "credentials:read_metadata",
+    "credentials:manage",
+    "credentials:use",
+    "reports:export",
+    "audit:read",
+    "settings:manage",
+]
+
+ROLE_PERMISSIONS: dict[str, set[Permission]] = {
+    "admin": {
+        "users:create", "users:read", "users:update", "users:disable",
+        "users:reset_password", "roles:manage", "assets:read", "assets:manage",
+        "tags:read", "tags:manage", "scans:launch", "scans:schedule",
+        "scans:cancel", "scans:retry", "scans:read", "accounts:read",
+        "findings:read", "findings:review", "privileged_findings:read",
+        "connectors:read", "connectors:manage", "credentials:read_metadata",
+        "credentials:manage", "credentials:use", "reports:export",
+        "audit:read", "settings:manage",
+    },
+    "security_analyst": {
+        "assets:read", "accounts:read", "tags:read", "scans:launch",
+        "scans:cancel", "scans:retry", "scans:read", "findings:read",
+        "findings:review", "privileged_findings:read", "connectors:read",
+        "credentials:read_metadata", "credentials:use", "reports:export",
+    },
+    "operator": {
+        "assets:read", "accounts:read", "tags:read", "scans:launch",
+        "scans:read", "findings:read", "connectors:read",
+        "credentials:read_metadata", "credentials:use",
+    },
+    "auditor": {
+        "assets:read", "accounts:read", "tags:read", "scans:read",
+        "findings:read", "privileged_findings:read", "reports:export",
+        "audit:read",
+    },
+    "viewer": {"assets:read", "accounts:read", "tags:read", "scans:read"},
+}
+
+
+def permissions_for_roles(roles: list[str]) -> set[Permission]:
+    permissions: set[Permission] = set()
+    for role in roles:
+        permissions.update(ROLE_PERMISSIONS.get(role, set()))
+    return permissions
+
+
 class Principal:
-    __slots__ = ("id", "email", "roles")
+    __slots__ = ("id", "email", "roles", "permissions")
 
     def __init__(self, id: str, email: str, roles: list[str]) -> None:
         self.id = id
         self.email = email
         self.roles = roles
+        self.permissions = permissions_for_roles(roles)
 
     def has_role(self, *allowed: str) -> bool:
         return any(r in self.roles for r in allowed)
 
+    def has_permission(self, permission: Permission) -> bool:
+        return permission in self.permissions
+
 
 def get_current_principal(
-    token: str | None = Depends(oauth2), db: Session = Depends(get_db)
+    request: Request, token: str | None = Depends(oauth2), db: Session = Depends(get_db)
 ) -> Principal:
     if not token:
         raise HTTPException(
@@ -93,6 +165,14 @@ def get_current_principal(
     user = db.query(User).filter(User.id == data["sub"]).first()
     if not user or not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User inactive")
+    if user.must_change_password and request.url.path not in {
+        "/api/v1/auth/change-password",
+        "/api/v1/auth/me",
+    }:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Password change required before accessing this resource",
+        )
     return Principal(id=str(user.id), email=user.email, roles=[r.name for r in user.roles])
 
 
@@ -104,6 +184,41 @@ def require_roles(*allowed: str):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Requires one of roles: {', '.join(allowed)}",
+            )
+        return p
+
+    return _inner
+
+
+def require_permissions(*required: Permission):
+    """Dependency factory to require every listed permission."""
+
+    def _inner(
+        request: Request,
+        db: Session = Depends(get_db),
+        p: Principal = Depends(get_current_principal),
+    ) -> Principal:
+        missing = [permission for permission in required if not p.has_permission(permission)]
+        if missing:
+            from app.services.audit import log_action
+
+            log_action(
+                db,
+                "auth.unauthorized",
+                actor_id=p.id,
+                actor_email=p.email,
+                ip=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent"),
+                context={
+                    "path": request.url.path,
+                    "method": request.method,
+                    "missing_permissions": missing,
+                },
+            )
+            db.commit()
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Missing required permission: {', '.join(missing)}",
             )
         return p
 

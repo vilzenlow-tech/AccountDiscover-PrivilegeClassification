@@ -17,6 +17,7 @@ from app.api.v1 import (
     audit,
     auth,
     tags,
+    users,
     connectors,
     connector_agents,
     credentials as credentials_api,
@@ -30,7 +31,7 @@ from app.api.v1 import (
     scan_profiles,
     schedules,
 )
-from app.config import get_settings
+from app.config import get_settings, validate_startup_settings
 from app.services.scheduler import build_scheduler
 
 settings = get_settings()
@@ -51,39 +52,9 @@ structlog.configure(
 log = structlog.get_logger("adpct")
 
 
-_WEAK_SECRET_SENTINELS = {
-    "dev-only-change-me",
-    "change-me-please-to-a-long-random-string",
-    "secret",
-    "changeme",
-}
-
-
-def _enforce_secret_key() -> None:
-    """Refuse to start in staging/prod with a known-weak JWT secret key."""
-    if settings.env in ("staging", "prod"):
-        if settings.secret_key in _WEAK_SECRET_SENTINELS or len(settings.secret_key) < 32:
-            raise RuntimeError(
-                "APP_SECRET_KEY must be a cryptographically random string of at least 32 "
-                "characters in staging/production environments. "
-                "Generate one with: python -c \"import secrets; print(secrets.token_hex(32))\""
-            )
-
-
-def _enforce_collector_mode(settings=None) -> None:
-    """Mock collectors fabricate accounts — never allow them outside dev (G-04)."""
-    s = settings or get_settings()
-    if s.env in ("staging", "prod") and s.collector_mode == "mock":
-        raise RuntimeError(
-            "COLLECTOR_MODE=mock is not permitted when APP_ENV=staging/prod. "
-            "Mock mode fabricates discovery data; set COLLECTOR_MODE=live."
-        )
-
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    _enforce_secret_key()
-    _enforce_collector_mode()
+    validate_startup_settings(settings)
     log.info("adpct.startup", env=settings.env)
     scheduler = build_scheduler()
     scheduler.start()
@@ -162,9 +133,19 @@ def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@app.get("/api/v1/status")
+def app_status() -> dict[str, str | bool]:
+    return {
+        "env": settings.env,
+        "demo_mode": settings.demo_mode,
+        "collector_mode": settings.collector_mode,
+    }
+
+
 # Routers
 PREFIX = "/api/v1"
 app.include_router(auth.router, prefix=PREFIX)
+app.include_router(users.router, prefix=PREFIX)
 app.include_router(assets.router, prefix=PREFIX)
 app.include_router(assets.group_router, prefix=PREFIX)
 app.include_router(connectors.router, prefix=PREFIX)

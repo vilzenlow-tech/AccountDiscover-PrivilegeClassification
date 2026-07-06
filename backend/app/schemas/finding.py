@@ -26,6 +26,30 @@ class FindingOut(BaseModel):
     explanation: str
     matched_evidence: dict | None
     evaluated_at: datetime
+    latest_review_state: ReviewState | None = None
+    latest_review_comment: str | None = None
+    latest_review_reviewer: str | None = None
+    latest_review_at: datetime | None = None
+    account_name: str | None = None
+    normalized_account_name: str | None = None
+    asset_id: uuid.UUID | None = None
+    asset_hostname: str | None = None
+    asset_ip_address: str | None = None
+    platform: Platform | None = None
+    application_tag: str | None = None
+    environment: str | None = None
+    account_source: str | None = None
+    account_type: str | None = None
+    enabled_status: str | None = None
+    interactive_status: str | None = None
+    last_login: datetime | None = None
+    activity_status: str | None = None
+    pam_managed: bool | None = None
+    owner: str | None = None
+    password_never_expires: bool | None = None
+    is_shared: bool | None = None
+    discovered_at: datetime | None = None
+    updated_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 

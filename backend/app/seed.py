@@ -10,6 +10,7 @@ import sys
 import uuid
 from datetime import UTC, datetime
 
+from app.config import PRODUCTION_LIKE_ENVS, get_settings
 from app.db import SessionLocal
 from app.models.asset import Asset
 from app.models.enums import Platform
@@ -43,7 +44,7 @@ SCAN_PROFILES = [
     {"name": "Full Scope Scan", "platforms": ["rhel", "solaris", "aix", "windows", "mysql", "mssql", "mongodb"], "mode": "safe", "description": "All platforms, safe mode."},
 ]
 
-ROLES = ["admin", "security_analyst", "viewer", "auditor"]
+ROLES = ["admin", "security_analyst", "operator", "auditor", "viewer"]
 
 DEMO_USERS = [
     {"email": "admin@local", "full_name": "Platform Admin", "password": "ChangeMe!123", "roles": ["admin"]},
@@ -53,6 +54,17 @@ DEMO_USERS = [
 
 
 def seed(production: bool = False) -> None:
+    settings = get_settings()
+    if settings.env in PRODUCTION_LIKE_ENVS and settings.demo_seed_enabled:
+        raise RuntimeError(
+            f"DEMO_SEED_ENABLED=true is not permitted when APP_ENV={settings.env}."
+        )
+    allow_demo_seed = (
+        settings.demo_seed_enabled
+        and not production
+        and settings.env in {"development", "test"}
+    )
+
     with SessionLocal() as db:
         print("Seeding roles...")
         role_map: dict[str, Role] = {}
@@ -66,7 +78,7 @@ def seed(production: bool = False) -> None:
             else:
                 role_map[rname] = existing
 
-        if not production:
+        if allow_demo_seed:
             print("Seeding demo users...")
             for ud in DEMO_USERS:
                 existing = db.query(User).filter(User.email == ud["email"]).first()
@@ -80,12 +92,13 @@ def seed(production: bool = False) -> None:
                     u.roles = [role_map[r] for r in ud["roles"]]
                     db.add(u)
 
-        print("Seeding sample assets...")
-        for ad in SAMPLE_ASSETS:
-            instance = ad.pop("instance", None)
-            existing = db.query(Asset).filter(Asset.hostname == ad["hostname"]).first()
-            if not existing:
-                db.add(Asset(**ad, instance=instance))
+            print("Seeding sample assets...")
+            for ad in SAMPLE_ASSETS:
+                asset_data = dict(ad)
+                instance = asset_data.pop("instance", None)
+                existing = db.query(Asset).filter(Asset.hostname == asset_data["hostname"]).first()
+                if not existing:
+                    db.add(Asset(**asset_data, instance=instance))
 
         print("Seeding scan profiles...")
         for sp in SCAN_PROFILES:

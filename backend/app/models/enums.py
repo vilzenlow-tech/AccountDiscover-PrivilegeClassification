@@ -128,6 +128,21 @@ class JobStatus(str, enum.Enum):
     cancelled = "cancelled"
 
 
+class ScanType(str, enum.Enum):
+    basic_discovery = "basic_discovery"
+    credentialed_discovery = "credentialed_discovery"
+    privileged_accounts = "privileged_accounts"
+    password_policy = "password_policy"
+    interactive_classification = "interactive_classification"
+    full_discovery = "full_discovery"
+
+
+class CredentialMode(str, enum.Enum):
+    none = "none"
+    asset = "asset"
+    connector = "connector"
+
+
 class ScanMode(str, enum.Enum):
     safe = "safe"
     deep = "deep"

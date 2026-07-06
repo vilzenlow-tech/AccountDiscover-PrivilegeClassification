@@ -1,0 +1,11 @@
+node_modules
+dist
+.pytest_cache
+__pycache__
+*.pyc
+.venv
+*.tar
+uv.lock
+app
+alembic
+tests

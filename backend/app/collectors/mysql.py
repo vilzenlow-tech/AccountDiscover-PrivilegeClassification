@@ -5,6 +5,8 @@ and (if supported) `mysql.role_edges`. Does not read or derive passwords.
 """
 from __future__ import annotations
 
+from datetime import datetime, timedelta, timezone
+
 from app.collectors._mockutil import probe
 from app.collectors.base import (
     BaseCollector,
@@ -25,9 +27,94 @@ from app.models.enums import (
 GLOBAL_ADMIN_PRIVS = {"ALL PRIVILEGES", "SUPER", "GRANT OPTION", "CREATE USER"}
 
 
+def _classify_mysql_principal(username: str) -> PrincipalType:
+    name = username.lower()
+    if name == "root":
+        return PrincipalType.built_in
+    if "svc" in name or name.endswith("_service"):
+        return PrincipalType.service
+    if "generic" in name or name in {"shared"}:
+        return PrincipalType.shared
+    if "app" in name:
+        return PrincipalType.application
+    return PrincipalType.human
+
+
 class MySQLCollector(BaseCollector):
     platform = Platform.mysql
     probes = ("mysql_users", "mysql_grants", "mysql_roles", "mysql_locked")
+
+    @staticmethod
+    def _interactive_status_for_principal(principal_type: PrincipalType) -> InteractiveStatus:
+        if principal_type in {PrincipalType.human, PrincipalType.shared}:
+            return InteractiveStatus.interactive
+        return InteractiveStatus.non_interactive
+
+    @staticmethod
+    def _password_expiry_metadata(
+        password_expired: str | None,
+        password_lifetime: int | str | None,
+        password_last_changed: datetime | None,
+    ) -> dict:
+        lifetime_days: int | None
+        try:
+            lifetime_days = int(password_lifetime) if password_lifetime is not None else None
+        except (TypeError, ValueError):
+            lifetime_days = None
+
+        is_expired = password_expired == "Y"
+        never_expires = lifetime_days == 0
+        expires_at = None
+        if is_expired:
+            expires_at = password_last_changed
+        elif password_last_changed and lifetime_days and lifetime_days > 0:
+            expires_at = password_last_changed + timedelta(days=lifetime_days)
+
+        return {
+            "password_expired": is_expired,
+            "password_lifetime_days": lifetime_days,
+            "password_never_expires": never_expires,
+            "password_last_changed": password_last_changed,
+            "password_expires_at": expires_at,
+        }
+
+    @staticmethod
+    def _coerce_lab_login_event(value: object) -> datetime | None:
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed
+
+    @staticmethod
+    def _coerce_lab_account_metadata(row: dict) -> tuple[PrincipalType | None, InteractiveStatus | None]:
+        principal_type = None
+        interactive_status = None
+        try:
+            principal_type = PrincipalType(str(row.get("principal_type") or ""))
+        except ValueError:
+            pass
+        try:
+            interactive_status = InteractiveStatus(str(row.get("interactive_status") or ""))
+        except ValueError:
+            pass
+        return principal_type, interactive_status
+
+    @staticmethod
+    def _json_safe_rows(rows: list[dict]) -> list[dict]:
+        safe_rows = []
+        for row in rows:
+            safe_rows.append(
+                {
+                    key: value.isoformat() if isinstance(value, datetime) else value
+                    for key, value in row.items()
+                }
+            )
+        return safe_rows
 
     def collect_mock(self, target: Target) -> CollectionResult:
         users = [
@@ -115,13 +202,7 @@ class MySQLCollector(BaseCollector):
                 NormalizedAccount(
                     account_name=f"{u['user']}@{u['host']}",
                     source_type="mysql_account",
-                    principal_type=(
-                        PrincipalType.built_in
-                        if u["user"] == "root"
-                        else PrincipalType.service
-                        if "svc" in u["user"] or u["user"].endswith("_svc")
-                        else PrincipalType.human
-                    ),
+                    principal_type=_classify_mysql_principal(u["user"]),
                     auth_source=AuthSource.db_native,
                     enabled_status=EnabledStatus.locked if u["locked"] else EnabledStatus.enabled,
                     interactive_status=InteractiveStatus.interactive,
@@ -151,9 +232,14 @@ class MySQLCollector(BaseCollector):
         raw_vp_vars: dict[str, str] = {}
         raw_lifetime: str | None = None
         raw_history: str | None = None
+        lab_login_events: dict[str, datetime] = {}
+        lab_account_metadata: dict[str, tuple[PrincipalType | None, InteractiveStatus | None]] = {}
         try:
             with conn.cursor() as cur:
-                cur.execute("SELECT User, Host, account_locked, plugin, password_expired FROM mysql.user")
+                cur.execute(
+                    "SELECT User, Host, account_locked, plugin, password_expired, "
+                    "password_lifetime, password_last_changed FROM mysql.user"
+                )
                 users = cur.fetchall()
                 grants_map: dict[str, list[str]] = {}
                 for u in users:
@@ -187,13 +273,43 @@ class MySQLCollector(BaseCollector):
                             raw_history = r["Value"]
                     except Exception:
                         pass
+
+                try:
+                    cur.execute(
+                        "SELECT account_name, last_login_at "
+                        "FROM adpct_lab_app.adpct_lab_account_login_events"
+                    )
+                    for row in cur.fetchall():
+                        login_at = MySQLCollector._coerce_lab_login_event(row.get("last_login_at"))
+                        if login_at:
+                            lab_login_events[str(row.get("account_name"))] = login_at
+                except Exception:
+                    lab_login_events = {}
+
+                try:
+                    cur.execute(
+                        "SELECT account_name, principal_type, interactive_status "
+                        "FROM adpct_lab_app.adpct_lab_account_metadata"
+                    )
+                    for row in cur.fetchall():
+                        lab_account_metadata[str(row.get("account_name"))] = MySQLCollector._coerce_lab_account_metadata(row)
+                except Exception:
+                    lab_account_metadata = {}
         finally:
             conn.close()
 
-        probes_out = [probe("mysql_users", "SELECT from mysql.user + SHOW GRANTS", [dict(u) for u in users])]
+        probes_out = [
+            probe(
+                "mysql_users",
+                "SELECT from mysql.user + SHOW GRANTS",
+                MySQLCollector._json_safe_rows([dict(u) for u in users]),
+            )
+        ]
         accounts = []
         for u in users:
             key = f"{u['User']}@{u['Host']}"
+            metadata_principal_type, metadata_interactive_status = lab_account_metadata.get(key, (None, None))
+            principal_type = metadata_principal_type or _classify_mysql_principal(u["User"])
             user_grants = grants_map.get(key, [])
             is_global_admin = (
                 any("ALL PRIVILEGES" in g and "*.*" in g for g in user_grants)
@@ -205,14 +321,30 @@ class MySQLCollector(BaseCollector):
                 for g in user_grants
             ]
             locked = u.get("account_locked", "N") == "Y"
+            account_name = f"{u['User']}@{u['Host']}"
+            expiry = MySQLCollector._password_expiry_metadata(
+                u.get("password_expired"),
+                u.get("password_lifetime"),
+                u.get("password_last_changed"),
+            )
+            last_login = lab_login_events.get(account_name)
             accounts.append(NormalizedAccount(
-                account_name=f"{u['User']}@{u['Host']}", source_type="mysql_local",
-                principal_type=PrincipalType.service, auth_source=AuthSource.db_native,
+                account_name=account_name, source_type="mysql_local",
+                principal_type=principal_type,
+                auth_source=AuthSource.db_native,
                 enabled_status=EnabledStatus.locked if locked else EnabledStatus.enabled,
-                interactive_status=InteractiveStatus.non_interactive,
-                last_login=None, is_shared=False, password_never_expires=False,
+                interactive_status=metadata_interactive_status or MySQLCollector._interactive_status_for_principal(principal_type),
+                last_login=last_login,
+                last_login_source="adpct_lab_app.adpct_lab_account_login_events" if last_login else None,
+                never_logged_in=False if last_login else None,
+                is_shared=False,
+                password_never_expires=expiry["password_never_expires"],
+                password_last_changed=expiry["password_last_changed"],
+                password_expires_at=expiry["password_expires_at"],
                 evidence_summary={"host": u["Host"], "plugin": u.get("plugin", ""),
-                                  "global_admin": is_global_admin},
+                                  "global_admin": is_global_admin,
+                                  "password_expired": expiry["password_expired"],
+                                  "password_lifetime_days": expiry["password_lifetime_days"]},
                 entitlements=ents,
             ))
         policies = []

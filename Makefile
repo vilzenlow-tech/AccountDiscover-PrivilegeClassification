@@ -1,4 +1,4 @@
-.PHONY: up down logs backend-sh worker-sh fe-sh migrate seed test lint
+.PHONY: up down logs backend-sh fe-sh test lint build
 
 up:
 	docker compose up -d --build
@@ -12,21 +12,17 @@ logs:
 backend-sh:
 	docker compose exec backend bash
 
-worker-sh:
-	docker compose exec worker bash
-
 fe-sh:
 	docker compose exec frontend sh
 
-migrate:
-	docker compose exec backend alembic upgrade head
-
-seed:
-	docker compose exec backend python -m app.seed
-
 test:
-	docker compose exec backend pytest -q
+	docker compose exec backend npm test
+	docker compose exec frontend npm run build
 
 lint:
-	docker compose exec backend ruff check app
+	docker compose exec backend npm run lint
 	docker compose exec frontend npm run lint
+
+build:
+	docker compose exec backend npm run build
+	docker compose exec frontend npm run build

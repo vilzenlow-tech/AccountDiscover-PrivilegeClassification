@@ -12,6 +12,7 @@ from app.db import get_db
 from app.models.account import Account
 from app.models.asset import Asset
 from app.models.enums import ActivityStatus, EnabledStatus, PrivilegeClass
+from app.services.account_context import domain_for_account, origin_for_account, schema_name_for_account
 from app.security import Principal, require_roles
 from app.services.activity import housekeeping_risk
 from app.services.audit import log_action
@@ -44,7 +45,11 @@ def _accounts_to_rows(accounts: list[Account]) -> list[dict]:
             "collection_mode": a.collection_mode or "",
             "asset_id": str(a.asset_id),
             "platform": a.platform.value,
+            "schema_name": schema_name_for_account(a) or "",
             "source_type": a.source_type,
+            "account_origin": origin_for_account(a),
+            "account_domain": domain_for_account(a) or "",
+            "principal_source": a.principal_source or "",
             "principal_type": a.principal_type.value,
             "auth_source": a.auth_source.value,
             "enabled_status": a.enabled_status.value,

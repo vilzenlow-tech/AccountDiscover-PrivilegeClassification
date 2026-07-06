@@ -5,11 +5,12 @@ import uuid
 from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.models.account import Account
-from app.models.enums import ActivityStatus, PrivilegeClass
+from app.models.enums import ActivityStatus, AuthSource, PrivilegeClass
 from app.schemas.account import AccountDetailOut, AccountFilter, AccountOut
 from app.schemas.common import Page
 from app.security import Principal, get_current_principal
@@ -37,6 +38,7 @@ def list_accounts(
     interactive_status: str | None = None,
     source_type: str | None = None,
     principal_source: str | None = None,
+    account_origin: str | None = None,
     asset_id: uuid.UUID | None = None,
     only_privileged: bool = False,
     only_shared: bool = False,
@@ -70,6 +72,26 @@ def list_accounts(
         q = q.filter(Account.source_type == source_type)
     if principal_source:
         q = q.filter(Account.principal_source == principal_source)
+    if account_origin:
+        origin = account_origin.lower()
+        if origin == "domain":
+            q = q.filter(or_(
+                Account.auth_source.in_([AuthSource.ad, AuthSource.ldap]),
+                Account.principal_source == "ActiveDirectory",
+                Account.source_type.ilike("windows_domain%"),
+            ))
+        elif origin == "local":
+            q = q.filter(or_(
+                Account.auth_source == AuthSource.local,
+                Account.principal_source == "Local",
+                Account.source_type.in_(["windows_local", "windows_builtin", "windows_service", "windows_system"]),
+            ))
+        elif origin == "database":
+            q = q.filter(Account.auth_source == AuthSource.db_native)
+        elif origin == "os_integrated":
+            q = q.filter(Account.auth_source == AuthSource.os_integrated)
+        elif origin == "unknown":
+            q = q.filter(Account.auth_source == AuthSource.unknown)
     if only_privileged:
         q = q.filter(Account.privilege_classification.in_([c.value for c in PRIVILEGED_CLASSES]))
     if only_shared:

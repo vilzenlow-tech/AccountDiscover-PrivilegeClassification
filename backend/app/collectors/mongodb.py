@@ -6,6 +6,8 @@ dbAdminAnyDatabase, dbOwner, backup, restore) are surfaced explicitly.
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from app.collectors._mockutil import probe
 from app.collectors.base import (
     BaseCollector,
@@ -59,6 +61,18 @@ class MongoCollector(BaseCollector):
         if principal_type in {PrincipalType.human, PrincipalType.shared}:
             return InteractiveStatus.interactive
         return InteractiveStatus.non_interactive
+
+    @staticmethod
+    def _coerce_lab_login_event(value: object) -> datetime | None:
+        if value is None:
+            return None
+        if isinstance(value, datetime):
+            return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+        return parsed.replace(tzinfo=timezone.utc) if parsed.tzinfo is None else parsed
 
     def collect_mock(self, target: Target) -> CollectionResult:
         all_users = {
@@ -210,9 +224,20 @@ class MongoCollector(BaseCollector):
         raw_auth_mechs: list[str] = []
         raw_ldap_enabled: bool = False
         raw_policy_error: str | None = None
+        lab_login_events: dict[str, datetime] = {}
         try:
             users_info = client.admin.command({"usersInfo": {"forAllDBs": True}, "showCredentials": False, "showPrivileges": False})
             users = users_info.get("users", [])
+
+            try:
+                for event in client["adpct_lab_app"]["adpct_lab_account_login_events"].find(
+                    {}, {"_id": 0, "account_name": 1, "last_login_at": 1}
+                ):
+                    login_at = MongoCollector._coerce_lab_login_event(event.get("last_login_at"))
+                    if login_at:
+                        lab_login_events[str(event.get("account_name"))] = login_at
+            except Exception:
+                lab_login_events = {}
 
             if target.options.get("collect_password_policy"):
                 # Auth mechanisms (available on all editions)
@@ -250,13 +275,18 @@ class MongoCollector(BaseCollector):
                 for r in roles
             ]
             principal_type = _classify_mongo_principal(username)
+            account_name = f"{username}@{auth_db}"
+            last_login = lab_login_events.get(account_name)
             accounts.append(NormalizedAccount(
-                account_name=f"{username}@{auth_db}", source_type="mongodb",
+                account_name=account_name, source_type="mongodb",
                 principal_type=principal_type,
                 auth_source=AuthSource.db_native,
                 enabled_status=EnabledStatus.enabled,
                 interactive_status=MongoCollector._interactive_status_for_principal(principal_type),
-                last_login=None, is_shared=False, password_never_expires=False,
+                last_login=last_login,
+                last_login_source="adpct_lab_app.adpct_lab_account_login_events" if last_login else None,
+                never_logged_in=False if last_login else None,
+                is_shared=False, password_never_expires=False,
                 evidence_summary={"auth_db": auth_db, "roles": [r.get("role") for r in roles]},
                 entitlements=ents,
             ))

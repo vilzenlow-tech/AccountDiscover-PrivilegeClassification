@@ -27,6 +27,7 @@ nginx/certs/
 backend/alembic/versions/__pycache__/
 
 # Node / frontend
+backend/node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/.vite/
@@ -44,6 +45,7 @@ backend/.pytest_cache/
 # Local assistant/runtime state
 .claude/
 .claude-flow/
+.serena/
 .claude/settings.local.json
 .mcp.json
 

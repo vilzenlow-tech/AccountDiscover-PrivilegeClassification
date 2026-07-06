@@ -17,7 +17,8 @@ SCHEDULE_TIMEZONE = timezone(timedelta(hours=8), "GMT+8")
 
 def _next_run(cron_expr: str, *, previous: datetime | None = None) -> datetime | None:
     trigger = CronTrigger.from_crontab(cron_expr, timezone=SCHEDULE_TIMEZONE)
-    return trigger.get_next_fire_time(previous, datetime.now(SCHEDULE_TIMEZONE))
+    now = previous.astimezone(SCHEDULE_TIMEZONE) if previous else datetime.now(SCHEDULE_TIMEZONE)
+    return trigger.get_next_fire_time(previous, now)
 
 
 def process_due_schedules() -> None:

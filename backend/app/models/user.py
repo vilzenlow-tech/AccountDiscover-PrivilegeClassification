@@ -4,7 +4,7 @@ from datetime import datetime
 
 import uuid
 
-from sqlalchemy import Boolean, Column, ForeignKey, String, Table, UniqueConstraint
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, String, Table, UniqueConstraint
 from app.db_types import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -34,11 +34,15 @@ class User(Base):
 
     id: Mapped[uuid.UUID] = uuid_pk()
     email: Mapped[str] = mapped_column(String(255), nullable=False)
+    username: Mapped[str | None] = mapped_column(String(80), nullable=True, unique=True)
     full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     must_change_password: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     failed_login_attempts: Mapped[int] = mapped_column(nullable=False, default=0)
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    updated_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     created_at: Mapped[datetime] = created_at()
     updated_at: Mapped[datetime] = updated_at()

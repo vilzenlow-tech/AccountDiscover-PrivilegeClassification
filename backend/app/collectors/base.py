@@ -205,7 +205,13 @@ class BaseCollector(abc.ABC):
     platform: Platform
 
     def collect(self, target: Target, credential: Credential | None) -> CollectionResult:
-        if get_settings().collector_mode == "mock":
+        settings = get_settings()
+        if settings.collector_mode == "mock":
+            if settings.env in {"uat", "staging", "production"}:
+                raise RuntimeError(
+                    f"Mock collectors are not permitted when APP_ENV={settings.env}. "
+                    "Use COLLECTOR_MODE=live or mark the scan failed with the real configuration state."
+                )
             return self.collect_mock(target)
         return self.collect_live(target, credential)
 
@@ -217,5 +223,5 @@ class BaseCollector(abc.ABC):
     def collect_live(self, target: Target, credential: Credential | None) -> CollectionResult:
         raise NotImplementedError(
             f"Live collection for {self.platform.value} is not enabled in this build. "
-            "Run in mock mode or provide a certified live collector."
+            "Configure a certified live collector for this platform."
         )
